@@ -4,9 +4,6 @@
 # GTM016A
 
 
-# Python_module
-Python_module/module/__init__.py
-
 # VOxmeter
 VOxmeter/Firmware/VOxmeter_STM32F429ZI/Drivers/*
 VOxmeter/Firmware/VOxmeter_STM32F429ZI/MDK-ARM/*

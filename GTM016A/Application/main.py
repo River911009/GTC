@@ -11,8 +11,8 @@
 #   This App is designed to check fpga
 ########################################
 
-import module.serialport as sp
-import module.imageBuilder as ib
+import serialport as sp
+import imageBuilder as ib
 from time import sleep
 import PySimpleGUI as sg
 import numpy as np
