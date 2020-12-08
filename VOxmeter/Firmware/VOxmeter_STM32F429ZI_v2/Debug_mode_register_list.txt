@@ -1,0 +1,19 @@
+Watch window
+
+Name
+i	300	uint
+j	-	uint
+k	70	uint
+l	-	uint
+slope	0	int
+psc	999	uint
+arr	83	uint
+x	1000	uint
+delay	60000	uint
+buffer	[]	ushort[5000]
+
+
+Memory window
+
+Address		buffer
+0x200001E4:	00000 ...

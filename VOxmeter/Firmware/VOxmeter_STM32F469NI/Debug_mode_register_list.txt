@@ -1,0 +1,23 @@
+Watch window
+
+Name
+i		2	uchar	(debug R = 0:stop_1:calibration resistor_2:test resistor)
+start		0	ushort	(serial stringing address = 0~1320)
+end		1320	ushort	(serial stringing address = 0~1320)
+average1	0	float	(using average filter from 660~670)
+average2	0	float	(using average filter from 1200~1210)
+avgValue	0	ushort	(average resistor value raw data 50 times)
+countValue	0	ushort	(counter of avgValue)
+resetValue	0	uchar	(0:defalut_1:reset counterValue)
+calibration_R	146420	uint	(Calibration resistor value)
+vref		3.2994	double	(ADC Vref = 3.2994V)
+iref		20	double	(Current source)
+rref		0	double	(Accelerating calculate value)
+resistor	0	float	(R value)
+slope		0	float	(Slope value)
+
+
+Memory window
+
+Address		tmp
+0x200001E4:	00000 ...

@@ -1,0 +1,19 @@
+Watch window
+
+Name
+i	5000	uint
+j	40	uint
+k	0	uint
+delta	0	int
+resh	0	int
+resl	0	int
+flag	0	int
+x	1000	uint
+l	0	uint
+buffer	[]	uint[10]
+
+
+Memory window
+
+Address		tmp
+0x200001E4:	00000 ...

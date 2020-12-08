@@ -1,0 +1,233 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Reference_Current:LM134H U1
+U 1 1 5F851029
+P 3600 2800
+F 0 "U1" H 3471 2846 50  0000 R CNN
+F 1 "LM334" H 3471 2755 50  0000 R CNN
+F 2 "Package_TO_SOT_THT:TO-46-3" H 3625 2625 50  0001 L CIN
+F 3 "http://www.ti.com/lit/ds/symlink/lm134.pdf" H 3600 2800 50  0001 C CIN
+	1    3600 2800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x02_Female J1
+U 1 1 5F85247E
+P 3100 4200
+F 0 "J1" H 3128 4176 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 3128 4085 50  0000 L CNN
+F 2 "" H 3100 4200 50  0001 C CNN
+F 3 "~" H 3100 4200 50  0001 C CNN
+	1    3100 4200
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:2N7002 Q1
+U 1 1 5F8539E3
+P 3700 5200
+F 0 "Q1" H 3904 5246 50  0000 L CNN
+F 1 "AO3400" H 3904 5155 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 3900 5125 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/2N/2N7002.pdf" H 3700 5200 50  0001 L CNN
+	1    3700 5200
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:2N7002 Q2
+U 1 1 5F856891
+P 4700 5200
+F 0 "Q2" H 4904 5246 50  0000 L CNN
+F 1 "AO3400" H 4904 5155 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 4900 5125 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/2N/2N7002.pdf" H 4700 5200 50  0001 L CNN
+	1    4700 5200
+	-1   0    0    -1  
+$EndComp
+$Comp
+L pspice:R R2
+U 1 1 5F858289
+P 4600 4250
+F 0 "R2" H 4668 4296 50  0000 L CNN
+F 1 "150k" H 4668 4205 50  0000 L CNN
+F 2 "" H 4600 4250 50  0001 C CNN
+F 3 "~" H 4600 4250 50  0001 C CNN
+	1    4600 4250
+	1    0    0    -1  
+$EndComp
+$Comp
+L pspice:R R1
+U 1 1 5F858B91
+P 4600 3250
+F 0 "R1" H 4668 3296 50  0000 L CNN
+F 1 "3k4" H 4668 3205 50  0000 L CNN
+F 2 "" H 4600 3250 50  0001 C CNN
+F 3 "~" H 4600 3250 50  0001 C CNN
+	1    4600 3250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4600 5000 4600 4500
+Wire Wire Line
+	4600 4000 4600 3800
+Wire Wire Line
+	3800 2800 4600 2800
+Wire Wire Line
+	4600 2800 4600 3000
+Wire Wire Line
+	3300 4200 3600 4200
+Wire Wire Line
+	3600 4200 3600 3800
+Wire Wire Line
+	3300 4300 3600 4300
+Wire Wire Line
+	3600 4300 3600 5000
+$Comp
+L power:GND #PWR?
+U 1 1 5FB62888
+P 3600 5500
+F 0 "#PWR?" H 3600 5250 50  0001 C CNN
+F 1 "GND" H 3605 5327 50  0000 C CNN
+F 2 "" H 3600 5500 50  0001 C CNN
+F 3 "" H 3600 5500 50  0001 C CNN
+	1    3600 5500
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5FB62F3C
+P 4600 5500
+F 0 "#PWR?" H 4600 5250 50  0001 C CNN
+F 1 "GND" H 4605 5327 50  0000 C CNN
+F 2 "" H 4600 5500 50  0001 C CNN
+F 3 "" H 4600 5500 50  0001 C CNN
+	1    4600 5500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4600 5400 4600 5500
+Wire Wire Line
+	3600 5500 3600 5400
+$Comp
+L Amplifier_Operational:AD8603 U2
+U 1 1 5FB65824
+P 5600 3900
+F 0 "U2" H 5944 3946 50  0000 L CNN
+F 1 "AD4891" H 5944 3855 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23-5" H 5600 3900 50  0001 C CNN
+F 3 "https://www.analog.com/media/en/technical-documentation/data-sheets/AD8603_8607_8609.pdf" H 5600 4100 50  0001 C CNN
+	1    5600 3900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5300 3800 4600 3800
+Connection ~ 4600 3800
+Wire Wire Line
+	4600 3800 4600 3500
+Wire Wire Line
+	4600 3800 3600 3800
+Connection ~ 3600 3800
+Wire Wire Line
+	3600 3800 3600 3000
+$Comp
+L Connector:Conn_01x03_Female J2
+U 1 1 5FC775FF
+P 7800 3900
+F 0 "J2" H 7828 3926 50  0000 L CNN
+F 1 "Conn_01x03_Female" H 7828 3835 50  0000 L CNN
+F 2 "" H 7800 3900 50  0001 C CNN
+F 3 "~" H 7800 3900 50  0001 C CNN
+	1    7800 3900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x02_Female J3
+U 1 1 5FC77C87
+P 7800 4900
+F 0 "J3" H 7828 4876 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 7828 4785 50  0000 L CNN
+F 2 "" H 7800 4900 50  0001 C CNN
+F 3 "~" H 7800 4900 50  0001 C CNN
+	1    7800 4900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5FC7874D
+P 5500 5500
+F 0 "#PWR?" H 5500 5250 50  0001 C CNN
+F 1 "GND" H 5505 5327 50  0000 C CNN
+F 2 "" H 5500 5500 50  0001 C CNN
+F 3 "" H 5500 5500 50  0001 C CNN
+	1    5500 5500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5500 4200 5500 5500
+Wire Wire Line
+	5300 4000 5100 4000
+Wire Wire Line
+	5100 4000 5100 4500
+Wire Wire Line
+	5100 4500 6600 4500
+Wire Wire Line
+	6600 4500 6600 3900
+Wire Wire Line
+	6600 3900 5900 3900
+$Comp
+L power:GND #PWR?
+U 1 1 5FC7CC94
+P 7100 5500
+F 0 "#PWR?" H 7100 5250 50  0001 C CNN
+F 1 "GND" H 7105 5327 50  0000 C CNN
+F 2 "" H 7100 5500 50  0001 C CNN
+F 3 "" H 7100 5500 50  0001 C CNN
+	1    7100 5500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7600 4900 4100 4900
+Wire Wire Line
+	4100 4900 4100 5200
+Wire Wire Line
+	4100 5200 3900 5200
+Wire Wire Line
+	4900 5200 5100 5200
+Wire Wire Line
+	5100 5200 5100 5000
+Wire Wire Line
+	5100 5000 7600 5000
+Wire Wire Line
+	7100 5500 7100 4000
+Wire Wire Line
+	7100 4000 7600 4000
+Wire Wire Line
+	7600 3900 6600 3900
+Connection ~ 6600 3900
+Wire Wire Line
+	7600 3800 7100 3800
+Wire Wire Line
+	7100 3800 7100 2000
+Wire Wire Line
+	7100 2000 5500 2000
+Wire Wire Line
+	3600 2000 3600 2600
+Wire Wire Line
+	5500 3600 5500 2000
+Connection ~ 5500 2000
+Wire Wire Line
+	5500 2000 3600 2000
+$EndSCHEMATC

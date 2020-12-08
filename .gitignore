@@ -1,0 +1,24 @@
+# GTC160
+
+
+# GTM016A
+
+
+# Python_module
+Python_module/module/__init__.py
+
+# VOxmeter
+VOxmeter/Firmware/VOxmeter_STM32F429ZI/Drivers/*
+VOxmeter/Firmware/VOxmeter_STM32F429ZI/MDK-ARM/*
+VOxmeter/Firmware/VOxmeter_STM32F429ZI/Middlewares/*
+VOxmeter/Firmware/VOxmeter_STM32F429ZI/.mxproject
+
+VOxmeter/Firmware/VOxmeter_STM32F429ZI_v2/Drivers/*
+VOxmeter/Firmware/VOxmeter_STM32F429ZI_v2/MDK-ARM/*
+VOxmeter/Firmware/VOxmeter_STM32F429ZI_v2/Middlewares/*
+VOxmeter/Firmware/VOxmeter_STM32F429ZI_v2/.mxproject
+
+VOxmeter/Firmware/VOxmeter_STM32F469NI/Drivers/*
+VOxmeter/Firmware/VOxmeter_STM32F469NI/MDK-ARM/*
+VOxmeter/Firmware/VOxmeter_STM32F469NI/Middlewares/*
+VOxmeter/Firmware/VOxmeter_STM32F469NI/.mxproject
