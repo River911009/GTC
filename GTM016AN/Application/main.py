@@ -9,15 +9,21 @@
 #   Riviere
 # Descript
 #   This App is designed to check fpga
+#   With onboard screen to demonstration
+#   Using multi-threading to
+#     avoid serial port communicate waiting
 ########################################
 
-import serialport as sp
 import imageBuilder as ib
-from time import sleep
+import serialPort as sp
+import userInterface as ui
+
 import PySimpleGUI as sg
 import numpy as np
 import cv2
 import os
+import threading
+from time import sleep
 import serial
 
 ########################################

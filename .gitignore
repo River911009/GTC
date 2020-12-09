@@ -1,8 +1,10 @@
 # GTC160
 
 
-# GTM016A
-
+# GTM016AN
+GTM016AN/Application/__pycache__/*
+GTM016AN/Firmware/*
+GTM016AN/Hardware/*
 
 # VOxmeter
 VOxmeter/Firmware/VOxmeter_STM32F429ZI/Drivers/*

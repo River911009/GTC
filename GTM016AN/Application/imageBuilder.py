@@ -3,8 +3,6 @@ import numpy as np
 import PySimpleGUI as sg
 
 
-''' shifting image to point1, fill zero in others area
-'''
 def imageShift(
   destination_size,
   data,
@@ -13,6 +11,16 @@ def imageShift(
   border=False,
   zoom_ratio=1
 ):
+  """shifting image to point1, fill zero in others area
+
+  Args:
+      destination_size ([tuple]): [description]
+      data ([type]): [description]
+      point1 ([tuple]): [description]
+      point2 ([tuple]): [description]
+      border (bool, optional): [description]. Defaults to False.
+      zoom_ratio (int, optional): [description]. Defaults to 1.
+  """
   if point2[0]>point1[0] and point2[1]>point1[1]:
     # zoom
     data=cv2.resize(
