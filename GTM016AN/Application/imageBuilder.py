@@ -11,17 +11,24 @@ def imageShift(
   border=False,
   zoom_ratio=1
 ):
-  """shifting image to point1, fill zero in others area
+  '''
+  # imageShift shifting image to point1, fill zero in others area
 
-  Args:
-      destination_size ([tuple]): [description]
-      data ([type]): [description]
-      point1 ([tuple]): [description]
-      point2 ([tuple]): [description]
-      border (bool, optional): [description]. Defaults to False.
-      zoom_ratio (int, optional): [description]. Defaults to 1.
-  """
+  ## Arguments:
+      destination_size (tuple): destination image size (x-axis, y-axis).
+      data (tuple): source image (y-axis, x-axis).
+      point1 (tuple): left top corner of source image on destination image (x-axis, y-axis).
+      point2 (tuple): right bottom corner of source image on destination image (x-axis, y-axis).
+      border (bool, optional): border width of source image. Defaults to False.
+      zoom_ratio (int, optional): zoom ratio of source image. Defaults to 1.
+
+  ## Returns:
+      tuple: 2D tuple image frame.
+  '''
   if point2[0]>point1[0] and point2[1]>point1[1]:
+    # split frame from zero to point2
+    data=data[:(point2[1]-point1[1]),:(point2[0]-point1[0])]
+
     # zoom
     data=cv2.resize(
       src=data,
@@ -32,26 +39,20 @@ def imageShift(
       interpolation=cv2.INTER_NEAREST
     )
 
-    # split frame from zero to point2
-    if data.shape[0]>zoom_ratio*point2[1]:
-      data=data[:zoom_ratio*point2[1],:]
-    if data.shape[1]>zoom_ratio*point2[0]:
-      data=data[:,:zoom_ratio*point2[0]]
-
-  # fill zero after data if point2 is larger than data size
-    if data.shape[0]<zoom_ratio*point2[1]:
+    # fill zero after data if point2 is larger than data size
+    if data.shape[0]<zoom_ratio*(point2[1]-point1[1]):
       nullpxl=np.zeros(
         shape=(
-          zoom_ratio*point2[1]-data.shape[0],
+          zoom_ratio*(point2[1]-point1[1])-data.shape[0],
           data.shape[1]
         )
       )
       data=np.vstack([data,nullpxl])
-    if data.shape[1]<zoom_ratio*point2[0]:
+    if data.shape[1]<zoom_ratio*(point2[0]-point1[0]):
       nullpxl=np.zeros(
         shape=(
           data.shape[0],
-          zoom_ratio*point2[0]-data.shape[1]
+          zoom_ratio*(point2[0]-point1[0])-data.shape[1]
         )
       )
       data=np.hstack([data,nullpxl])
@@ -87,10 +88,7 @@ def imageShift(
     data=np.vstack([nullpxl,data])
 
     # split frame from zero to destination_size
-    if data.shape[0]>zoom_ratio*destination_size[1]:
-      data=data[:zoom_ratio*destination_size[1],:]
-    if data.shape[1]>zoom_ratio*destination_size[0]:
-      data=data[:,:zoom_ratio*destination_size[0]]
+    data=data[:zoom_ratio*destination_size[1],:zoom_ratio*destination_size[0]]
 
     # fill zero after data if destination_size is larger than data size
     if data.shape[0]<zoom_ratio*destination_size[1]:
@@ -112,19 +110,40 @@ def imageShift(
     return(data)
 
 
-def testFrame(light):
-  frame=np.zeros(shape=(22,22),dtype=np.uint8)
-  # test frame type A
-  # for i in range(11):
-  #   for j in range(11):
-  #     frame[i*2][j*2]=light
-  # test frame type B
-  for i in range(22):
-    for j in range(22):
-      frame[i][j]=i*j*255//484
-  # for i in range(frame.size):
-  #   frame[i]=(3*i)%256
-  # frame=np.reshape(frame,(12,16))
+def testFrame(
+  shape,
+  brightness=128,
+  type=0
+):
+  '''testFrame generate 8-bits test frame 
+
+  Arguments:
+    shape (tuple): frame size (y-axis, x-axis).
+    brightness (uint8): brightness from 0 to 255. Defaults to 128.
+    type (int): test frame type (type: 0, 1 and 2). Defaults to 0.
+
+  Returns:
+    tuple: 2D tuple image frame.
+  '''
+  frame=np.zeros(shape=shape,dtype=np.uint8)
+
+  if type==0:
+  # test frame type 0
+    for i in range((shape[0]+1)//2):
+      for j in range((shape[1]+1)//2):
+        frame[i*2][j*2]=brightness
+
+  elif type==1:
+  # test frame type 1
+    for i in range(shape[0]):
+      for j in range(shape[1]):
+        frame[i][j]=i*j*brightness//(shape[0]*shape[1])
+
+  elif type==2:
+  # test frame type 2 (for calibration bar)
+    for i in range(frame.shape[1]):
+      frame[0][i]=(brightness*i)//frame.shape[1]
+
   return(frame)
 
 
@@ -138,9 +157,9 @@ if __name__ == '__main__':
     # drawGraph
     frame=imageShift(
       (22,22),
-      testFrame(255),
-      (0,5),
-      (12,16),
+      testFrame((5,7),type=0),
+      (10,2),
+      (20,8),
       True,
       20
     )

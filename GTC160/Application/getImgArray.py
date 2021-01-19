@@ -22,7 +22,7 @@ camera.set(cv2.CAP_PROP_MODE,3)
 camera.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_SIZE[1])
 camera.set(cv2.CAP_PROP_FRAME_HEIGHT, IMAGE_SIZE[0])
 
-pth = Path('DCIM')
+pth = Path('./DCIM')
 pth.mkdir(exist_ok=True)
 
 def capture(fname):

@@ -30,7 +30,7 @@ import serial
 # Global varables
 ########################################
 # static variables
-WINDOW_TITLE='GTM016A'
+WINDOW_TITLE='GTM016AN'
 SCREEN_SIZE=[440,440]
 
 # variable
@@ -186,10 +186,10 @@ def drawGraph(screen,zoom_ratio,frame,frame_size,calibration,grid):
     zoom_ratio=20
   )
 
-  # nullpxl=np.zeros(shape=(1,2),dtype=np.uint8)
-  # frame2=np.hstack([nullpxl,calibration,nullpxl])
-  # frame1=cv2.resize(frame,(frame.shape[1]*zoom_ratio,frame.shape[0]*zoom_ratio),interpolation=cv2.INTER_NEAREST)
-  # frame2=cv2.resize(frame2,(frame2.shape[1]*zoom_ratio,frame2.shape[0]*zoom_ratio),interpolation=cv2.INTER_NEAREST)
+  nullpxl=np.zeros(shape=(1,2),dtype=np.uint8)
+  frame2=np.hstack([nullpxl,calibration,nullpxl])
+  frame1=cv2.resize(frame,(frame.shape[1]*zoom_ratio,frame.shape[0]*zoom_ratio),interpolation=cv2.INTER_NEAREST)
+  frame2=cv2.resize(frame2,(frame2.shape[1]*zoom_ratio,frame2.shape[0]*zoom_ratio),interpolation=cv2.INTER_NEAREST)
 
   # if grid:
   #   cv2.rectangle(img=frame1,pt1=(0,0),pt2=(frame1.shape[1]-1,frame1.shape[0]-1),color=(255))
@@ -367,24 +367,6 @@ def getValue(value,decode):
     window.Element('get_94').update(hex(value[94]))
     window.Element('get_96').update(hex(value[96]))
 
-def testFramed(light):
-  frame=np.zeros(shape=(22,22),dtype=np.uint8)
-  # test frame type A
-  # for i in range(11):
-  #   for j in range(11):
-  #     frame[i*2][j*2]=light
-  # test frame type B
-  for i in range(22):
-    for j in range(22):
-      frame[i][j]=i*j*255//484
-  return(frame)
-
-def testCalibration(light):
-  frame=np.zeros(shape=(1,18),dtype=np.uint8)
-  for i in range(frame.shape[1]):
-    frame[0][i]=light*i//18
-  return(frame)
-
 ########################################
 # Main initial function
 ########################################
@@ -526,7 +508,7 @@ while True:
     drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=frame,frame_size=frame_size,calibration=calibration,grid=grid)
   else:
     frame_size=[22,22]
-    drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=ib.testFrame(255),frame_size=frame_size,calibration=testCalibration(255),grid=grid)
+    drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=ib.testFrame(frame_size,type=0),frame_size=frame_size,calibration=ib.testFrame((1,18),type=0),grid=grid)
 
   # print('running...')
 
