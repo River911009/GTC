@@ -3,6 +3,7 @@ import numpy as np
 import PySimpleGUI as sg
 
 
+halfClick=False
 maxi=0
 
 
@@ -116,9 +117,11 @@ while True:
   # grad_y = cv.Scharr(gray,ddepth,0,1)
   grad_y=cv2.Sobel(std_range, cv2.CV_16S, 0, 1, ksize=3, scale=1, delta=0, borderType=cv2.BORDER_DEFAULT)
 
-  abs_grad_x=cv2.convertScaleAbs(grad_x)
-  abs_grad_y=cv2.convertScaleAbs(grad_y)
-  fm = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+  # abs_grad_x=cv2.convertScaleAbs(grad_x)
+  # abs_grad_y=cv2.convertScaleAbs(grad_y)
+  # fm = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+  sqr_grad_x=gr
+  
 
   window.find('__AVG__').update('%.4f'%avg)
   window.find('__STD__').update('%.4f'%std)

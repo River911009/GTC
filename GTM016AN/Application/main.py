@@ -191,24 +191,24 @@ def drawGraph(screen,zoom_ratio,frame,frame_size,calibration,grid):
   frame1=cv2.resize(frame,(frame.shape[1]*zoom_ratio,frame.shape[0]*zoom_ratio),interpolation=cv2.INTER_NEAREST)
   frame2=cv2.resize(frame2,(frame2.shape[1]*zoom_ratio,frame2.shape[0]*zoom_ratio),interpolation=cv2.INTER_NEAREST)
 
-  # if grid:
-  #   cv2.rectangle(img=frame1,pt1=(0,0),pt2=(frame1.shape[1]-1,frame1.shape[0]-1),color=(255))
-  #   cv2.rectangle(img=frame2,pt1=(2*zoom_ratio,0),pt2=(frame2.shape[1]-2*zoom_ratio,frame2.shape[0]-1),color=(255))
-  #   for x in range(frame1.shape[0]):
-  #     if x%zoom_ratio==0 and x>0:
-  #       cv2.line(img=frame1,pt1=(0,x),pt2=(frame1.shape[0]-1,x),color=(255))
-  #       cv2.line(img=frame1,pt1=(x,0),pt2=(x,frame1.shape[0]-1),color=(255))
-  #   for x in range(frame2.shape[1]):
-  #     if x%zoom_ratio==0 and 2*zoom_ratio<x and x<20*zoom_ratio:
-  #       cv2.line(img=frame2,pt1=(x,0),pt2=(x,frame2.shape[0]-1),color=(255))
-  # nullpxl=np.zeros(shape=(frame_addr[0],frame1.shape[1]),dtype=np.uint8)
-  # graph=np.vstack([nullpxl,frame1])
-  # nullpxl=np.zeros(shape=(graph.shape[0],frame_addr[1]),dtype=np.uint8)
-  # graph=np.hstack([nullpxl,graph])
-  # nullpxl=np.zeros(shape=((SCREEN_SIZE[0]-graph.shape[0],graph.shape[1])),dtype=np.uint8)
-  # graph=np.vstack([graph,nullpxl])
-  # nullpxl=np.zeros(shape=((graph.shape[0],SCREEN_SIZE[1]-graph.shape[1])),dtype=np.uint8)
-  # graph=np.hstack([graph,nullpxl])
+  if grid:
+    cv2.rectangle(img=frame1,pt1=(0,0),pt2=(frame1.shape[1]-1,frame1.shape[0]-1),color=(255))
+    cv2.rectangle(img=frame2,pt1=(2*zoom_ratio,0),pt2=(frame2.shape[1]-2*zoom_ratio,frame2.shape[0]-1),color=(255))
+    for x in range(frame1.shape[0]):
+      if x%zoom_ratio==0 and x>0:
+        cv2.line(img=frame1,pt1=(0,x),pt2=(frame1.shape[0]-1,x),color=(255))
+        cv2.line(img=frame1,pt1=(x,0),pt2=(x,frame1.shape[0]-1),color=(255))
+    for x in range(frame2.shape[1]):
+      if x%zoom_ratio==0 and 2*zoom_ratio<x and x<20*zoom_ratio:
+        cv2.line(img=frame2,pt1=(x,0),pt2=(x,frame2.shape[0]-1),color=(255))
+  nullpxl=np.zeros(shape=(frame_addr[0],frame1.shape[1]),dtype=np.uint8)
+  graph=np.vstack([nullpxl,frame1])
+  nullpxl=np.zeros(shape=(graph.shape[0],frame_addr[1]),dtype=np.uint8)
+  graph=np.hstack([nullpxl,graph])
+  nullpxl=np.zeros(shape=((SCREEN_SIZE[0]-graph.shape[0],graph.shape[1])),dtype=np.uint8)
+  graph=np.vstack([graph,nullpxl])
+  nullpxl=np.zeros(shape=((graph.shape[0],SCREEN_SIZE[1]-graph.shape[1])),dtype=np.uint8)
+  graph=np.hstack([graph,nullpxl])
 
   window[screen].update(
     data=cv2.imencode(ext='.png',img=graph)[1].tobytes()
@@ -402,12 +402,68 @@ while True:
 
   # image grid switch
   if event=='__GRID__':
-    if grid:
-      grid=False
-      window.Element('__GRID__').update('Grid Off')
+    # if grid:
+    #   grid=False
+    #   window.Element('__GRID__').update('Grid Off')
+    # else:
+    #   grid=True
+    #   window.Element('__GRID__').update('Grid On')
+
+    if portOpened:
+      set_value[int.from_bytes(b'\x09', byteorder='big', signed=False)]=int.from_bytes(b'\x5a', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x0e', byteorder='big', signed=False)]=int.from_bytes(b'\x30', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x12', byteorder='big', signed=False)]=int.from_bytes(b'\xea', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x13', byteorder='big', signed=False)]=int.from_bytes(b'\x00', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x14', byteorder='big', signed=False)]=int.from_bytes(b'\x02', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x15', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x19', byteorder='big', signed=False)]=int.from_bytes(b'\x04', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x26', byteorder='big', signed=False)]=int.from_bytes(b'\x03', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x27', byteorder='big', signed=False)]=int.from_bytes(b'\x1f', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x3c', byteorder='big', signed=False)]=int.from_bytes(b'\x8f', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x3d', byteorder='big', signed=False)]=int.from_bytes(b'\x92', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x3e', byteorder='big', signed=False)]=int.from_bytes(b'\x0f', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x3f', byteorder='big', signed=False)]=int.from_bytes(b'\x0f', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x40', byteorder='big', signed=False)]=int.from_bytes(b'\x05', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x42', byteorder='big', signed=False)]=int.from_bytes(b'\x0c', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x44', byteorder='big', signed=False)]=int.from_bytes(b'\x01', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x47', byteorder='big', signed=False)]=int.from_bytes(b'\x7c', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x48', byteorder='big', signed=False)]=int.from_bytes(b'\x06', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x4a', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x4b', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x4c', byteorder='big', signed=False)]=int.from_bytes(b'\x0e', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x4d', byteorder='big', signed=False)]=int.from_bytes(b'\x0e', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x50', byteorder='big', signed=False)]=int.from_bytes(b'\x02', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x52', byteorder='big', signed=False)]=int.from_bytes(b'\x80', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x53', byteorder='big', signed=False)]=int.from_bytes(b'\x7c', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x54', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x55', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x5a', byteorder='big', signed=False)]=int.from_bytes(b'\x44', byteorder='big', signed=False)
+      set_value[int.from_bytes(b'\x5d', byteorder='big', signed=False)]=int.from_bytes(b'\x89', byteorder='big', signed=False)
+#      set_value[int.from_bytes(b'\x09', byteorder='big', signed=False)]=int.from_bytes(b'\x00', byteorder='big', signed=False)
+      for addr in [9,14,18,19,20,21,25,38,39,60,61,62,63,64,66,68,71,72,74,75,76,77,80,82,83,84,85,90,93]:
+        tmp=sp.send_data(port,[33,addr,set_value[addr]])
+        if tmp=='TIMEOUT':
+          port.close()
+          portOpened=False
+          portDisconnect()
+          sg.popup('I2C NACK')
+          break
+        if tmp=='DISCONNECT':
+          portOpened=False
+          portDisconnect()
     else:
-      grid=True
-      window.Element('__GRID__').update('Grid On')
+      addr=int(event[6:])%256
+      tmp=sp.send_data(port,[33,addr,set_value[addr]])
+      if tmp=='TIMEOUT':
+        port.close()
+        portOpened=False
+        portDisconnect()
+        sg.popup('I2C NACK')
+      if tmp=='DISCONNECT':
+        portOpened=False
+        portDisconnect()
+    sp.send_data(port,[33,9,0])
+    getFrameSize()
 
   # read event
   if event[:5]=='read_' and portOpened:
@@ -484,17 +540,17 @@ while True:
     getFrameSize()
 
   # get and draw image
-  if portOpened:
-    getFrameSize()
-    frame=np.zeros(shape=(frame_size[0]*frame_size[1]),dtype=np.uint8)
-    drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=frame,frame_size=frame_size,calibration=calibration,grid=grid)
-    tmp=sp.get_image(port,17,frame_size[0]*frame_size[1],0.02)
-    if type(tmp)==str and tmp=='DISCONNECT':
-      portOpened=False
-      portDisconnect()
-      sg.popup('PORT DISCONNECTED')
-    if not type(tmp)==str:
-      frame=tmp
+  # if portOpened:
+  #   getFrameSize()
+  #   frame=np.zeros(shape=(frame_size[0]*frame_size[1]),dtype=np.uint8)
+  #   drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=frame,frame_size=frame_size,calibration=calibration,grid=grid)
+  #   tmp=sp.get_image(port,17,frame_size[0]*frame_size[1],0.02)
+  #   if type(tmp)==str and tmp=='DISCONNECT':
+  #     portOpened=False
+  #     portDisconnect()
+  #     sg.popup('PORT DISCONNECTED')
+  #   if not type(tmp)==str:
+  #     frame=tmp
 
     # print(frame)
     # port.write([20])
@@ -505,10 +561,10 @@ while True:
     #     calibration[0][index]=int.from_bytes(port.read(2),byteorder='little')%256
     # port.flushInput()
     # # print(calibration)
-    drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=frame,frame_size=frame_size,calibration=calibration,grid=grid)
-  else:
-    frame_size=[22,22]
-    drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=ib.testFrame(frame_size,type=0),frame_size=frame_size,calibration=ib.testFrame((1,18),type=0),grid=grid)
+  #   drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=frame,frame_size=frame_size,calibration=calibration,grid=grid)
+  # else:
+  #   frame_size=[22,22]
+  #   drawGraph(screen='__IMAGE__',zoom_ratio=20,frame=ib.testFrame(frame_size,type=0),frame_size=frame_size,calibration=ib.testFrame((1,18),type=0),grid=grid)
 
   # print('running...')
 
