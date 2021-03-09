@@ -1,18 +1,18 @@
-########################################
-# Title
-#   GTM016A
-# Version
-#   1.0
-# Date
-#   26 Aug, 2020
-# Author
-#   Riviere
-# Descript
-#   This App is designed to check fpga
-#   With onboard screen to demonstration
-#   Using multi-threading to
-#     avoid serial port communicate waiting
-########################################
+"""
+  Title
+    GTM016A
+  Version
+    1.0
+  Date
+    26 Aug, 2020
+  Author
+    Riviere
+  Descript
+    This App is designed to check fpga
+    With onboard screen to demonstration
+    Using multi-threading to
+      avoid serial port communicate waiting
+"""
 
 import imageBuilder as ib
 import serialPort as sp
@@ -96,6 +96,11 @@ WindowLayout=[
         sg.Button('Grid Off',size=(10,1),key='__GRID__')
       ]
     ],border_width=0),
+
+
+    sg.Input('',(10,1),key='_ADDR_'),sg.Input('',(10,1),key='_DATA_'),sg.Button('R'),sg.Button('W'),
+
+
     sg.Frame(title='Registers',layout=[
       [
         sg.Text(text='Bank',size=(4,1),justification='center'),
@@ -112,7 +117,9 @@ WindowLayout=[
       controller(1,'VID[7:0]','[7:0]','R'),
       controller(2,'slave_id[6:0]','[6:0]','R'),
       controller(3,'Reg_regreset','[0]','R/W'),
+      controller(5,'Reg_PD','[0]','R/W'),
       controller(9,'wp_code[7:0]','[7:0]','R/W'),
+      controller(16,'Reg_SPIImgOut_en','[0]','R/W'),
       controller(18,'Reg_DigNp[7:0]','[7:0]','R/W'),
       controller(19,'Reg_DigNp[11:8]','[3:0]','R/W'),
       controller(20,'Reg_SysNp[7:0]','[7:0]','R/W'),
@@ -126,8 +133,8 @@ WindowLayout=[
       controller(35,'Reg_CRstart_PreSync[4:0]','[4:0]','R/W'),
       controller(36,'Reg_CRend_PreSync[4:0]','[4:0]','R/W'),
       controller(38,'Reg_SYNC_length[4:0]','[4:0]','R/W'),
-      controller(40,'Reg_PD[7:0]','[6]','R/W'),
-      controller(90,'Reg_T_ANA_EN[7:0]','[6]','R/W'),
+      controller(40,'Reg_PD','[6]','R/W'),
+      controller(90,'Reg_T_ANA_EN','[6]','R/W'),
       controller(91,'Reg_T_EXT_VREF_sel[1:0]','[1:0]','R/W'),
       controller(93,'Reg_T_ipix_s[5:0]','[5:0]','R/W'),
       controller(94,'Reg_T_ADC_VREF_S','[4]','R/W'),
@@ -252,11 +259,11 @@ def setValue(value,decode):
   data[36]=convert(value['set_36'],36,31,decode)
   data[38]=convert(value['set_38'],38,31,decode)
   # data[40]=convert(value['set_40'],40,64,decode)
-  # data[90]=convert(value['set_90'],90,64,decode)
-  data[91]=convert(value['set_91'],91,3,decode)
-  data[93]=convert(value['set_93'],93,63,decode)
-  # data[94]=convert(value['set_94'],94,16,decode)
-  data[96]=convert(value['set_96'],96,7,decode)
+  data[90]=convert(value['set_90'],90,255,decode)
+  data[91]=convert(value['set_91'],91,255,decode)
+  data[93]=convert(value['set_93'],93,255,decode)
+  data[94]=convert(value['set_94'],94,255,decode)
+  data[96]=convert(value['set_96'],96,255,decode)
 
   # 281
   tmp=0
@@ -285,23 +292,23 @@ def setValue(value,decode):
   except ValueError:
     window.Element('set_40').update('0')
   # 90
-  try:
-    if int(value['set_90'])!=0:
-      window.Element('set_90').update('1')
-      data[90]=64
-    else:
-      data[90]=0
-  except ValueError:
-    window.Element('set_90').update('0')
+  # try:
+  #   if int(value['set_90'])!=0:
+  #     window.Element('set_90').update('1')
+  #     data[90]=64
+  #   else:
+  #     data[90]=0
+  # except ValueError:
+  #   window.Element('set_90').update('0')
   # 94
-  try:
-    if int(value['set_94'])!=0:
-      window.Element('set_94').update('1')
-      data[94]=16
-    else:
-      data[94]=0
-  except ValueError:
-    window.Element('set_94').update('0')
+  # try:
+  #   if int(value['set_94'])!=0:
+  #     window.Element('set_94').update('1')
+  #     data[94]=16
+  #   else:
+  #     data[94]=0
+  # except ValueError:
+  #   window.Element('set_94').update('0')
 
   # for index in range(len(keys)):
   #   if decode=='Dec' and type(list(keys)[index])==str and list(values)[index]!='----' and list(keys)[index][:4]=='set_':
@@ -336,11 +343,11 @@ def getValue(value,decode):
     window.Element('get_36').update(value[36])
     window.Element('get_38').update(value[38])
     window.Element('get_40').update(value[40])
-    window.Element('get_90').update(value[90] and 64)
-    window.Element('get_91').update(value[91] and 3)
-    window.Element('get_93').update(value[93] and 63)
-    window.Element('get_94').update(value[94] and 16)
-    window.Element('get_96').update(value[96] and 7)
+    window.Element('get_90').update(value[90])
+    window.Element('get_91').update(value[91])
+    window.Element('get_93').update(value[93])
+    window.Element('get_94').update(value[94])
+    window.Element('get_96').update(value[96])
   elif decode=='Hex':
     window.Element('get_0').update(hex(value[0]))
     window.Element('get_1').update(hex(value[1]))
@@ -439,8 +446,9 @@ while True:
       set_value[int.from_bytes(b'\x55', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
       set_value[int.from_bytes(b'\x5a', byteorder='big', signed=False)]=int.from_bytes(b'\x44', byteorder='big', signed=False)
       set_value[int.from_bytes(b'\x5d', byteorder='big', signed=False)]=int.from_bytes(b'\x89', byteorder='big', signed=False)
-#      set_value[int.from_bytes(b'\x09', byteorder='big', signed=False)]=int.from_bytes(b'\x00', byteorder='big', signed=False)
-      for addr in [9,14,18,19,20,21,25,38,39,60,61,62,63,64,66,68,71,72,74,75,76,77,80,82,83,84,85,90,93]:
+      set_value[int.from_bytes(b'\x5e', byteorder='big', signed=False)]=int.from_bytes(b'\xd3', byteorder='big', signed=False)
+      # set_value[int.from_bytes(b'\x09', byteorder='big', signed=False)]=int.from_bytes(b'\x00', byteorder='big', signed=False)
+      for addr in [9,14,18,19,20,21,25,38,39,60,61,62,63,64,66,68,71,72,74,75,76,77,80,82,83,84,85,90,93,94]:
         tmp=sp.send_data(port,[33,addr,set_value[addr]])
         if tmp=='TIMEOUT':
           port.close()
@@ -465,11 +473,41 @@ while True:
     sp.send_data(port,[33,9,0])
     getFrameSize()
 
+
+
+
+  if event=='R' and portOpened:
+    tmp=sp.get_data(port,[97,int(values['_ADDR_'])])
+    if tmp=='TIMEOUT':
+      sp.serial_close(port)
+      portOpened=False
+      portDisconnect()
+      sg.popup('I2C NACK')
+    elif tmp=='DISCONNECT':
+      portOpened=False
+      portDisconnect()
+    else:
+      window.find('_DATA_').update(str(tmp))
+
+
+  if event=='W' and portOpened:
+    tmp=sp.send_data(port,[33,int(values['_ADDR_']),int(values['_DATA_'])])
+    if tmp=='TIMEOUT':
+      port.close()
+      portOpened=False
+      portDisconnect()
+      sg.popup('I2C NACK')
+    if tmp=='DISCONNECT':
+      portOpened=False
+      portDisconnect()
+
+
+
   # read event
   if event[:5]=='read_' and portOpened:
     if event[5:]=='all':
     # for loop read
-      for addr in [0,1,2,3,9,18,19,20,21,25,28,30,32,34,35,36,38,40]:
+      for addr in [0,1,2,3,9,18,19,20,21,25,28,30,32,34,35,36,38,40,9,90,91,93,94,96]:
         tmp=sp.get_data(port,[97,addr])
         if tmp=='TIMEOUT':
           sp.serial_close(port)

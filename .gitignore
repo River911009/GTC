@@ -3,7 +3,12 @@
 
 # GTM016AN
 GTM016AN/Application/__pycache__/*
-GTM016AN/Firmware/*
+
+GTM016AN/Firmware/GTM016AN_STM32F429ZI/Drivers/*
+GTM016AN/Firmware/GTM016AN_STM32F429ZI/MDK-ARM/*
+GTM016AN/Firmware/GTM016AN_STM32F429ZI/Middlewares/*
+GTM016AN/Firmware/GTM016AN_STM32F429ZI/.mxproject
+
 GTM016AN/Hardware/*
 
 # VOxmeter

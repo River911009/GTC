@@ -54,6 +54,7 @@
 
 /* USER CODE BEGIN PV */
 
+uint16_t del=150;
 uint8_t i=2;
 volatile uint8_t dma_cplt=0;
 uint16_t tmp[1320];
@@ -213,7 +214,7 @@ void reDraw(uint32_t resistor,float slope){
     LCD_DisplayString_Vertical(8,56,"OverLoad");
   }
   else if(resistor<=425){
-    LCD_DisplayString_Vertical(8,56,"  < 1000 ");
+    LCD_DisplayString_Vertical(8,56,"  <  500 ");
   }
   else{
     LCD_DisplayString_Vertical(8,56,"       ");
@@ -309,18 +310,18 @@ int main(void)
       // calibrated function
       // resistor=(double)average1*(double)average1*0.0000006+(double)average1*2.3839+4.7023;
       // slope=(average2-average1)*(vref/65536.0)*1000000.0/((1200-660)*1.5);
-      slope=(double)(average2-average1)*0.061728; // unit: (V/S)
-      slope/=1000;  // V/S -> V/mS
+      slope=(double)(((average2-average1)/(average1*average1))*1000000);//*0.061728; // unit: (V/S)
+//      slope/=1000;  // V/S -> V/mS
 
       // shortToString();
       // CDC_Transmit_FS((uint8_t*)str,sizeof(str));
     }
-    reDraw((uint32_t)resistor,slope);
+//    reDraw((uint32_t)resistor,slope);
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_Delay(153);
+    HAL_Delay(del);
   }
   /* USER CODE END 3 */
 }
