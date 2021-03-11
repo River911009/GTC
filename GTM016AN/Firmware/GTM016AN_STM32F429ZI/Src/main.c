@@ -33,6 +33,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "stm32f4xx_hal_def.h"
 #include "usbd_cdc_if.h"
 #include "UI.h"
 
@@ -60,7 +61,7 @@
 uint8_t shift_=10,direct_=0;
 
 
-ADC_SRC ADC_select=ADC_External;//Test;
+ADC_SRC ADC_select=ADC_Internal;//Test;
 extern frame_BufferTypeDef img;
 extern ui_TypeDef ui;
 
@@ -101,11 +102,11 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 
 
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
-	for(uint16_t i=0;i<484;i+=23){
-		imageValue[i/23]=img.image[0][i];
-	}
-}
+//void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
+//	for(uint16_t i=0;i<484;i+=23){
+//		imageValue[i/23]=img.image[0][i];
+//	}
+//}
 
 // first read frame size on system startup
 void getFrameSize(){
@@ -139,18 +140,15 @@ void getFrameSize(){
 //--------------
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin==GTM016AN_PCLK_Pin){
-		HAL_TIM_PWM_Start_IT(&htim4,TIM_CHANNEL_2);
+		HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
+		__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_CC2);
+		__HAL_TIM_ENABLE(&htim4);
+		HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
+		//HAL_TIM_PWM_Start_IT(&htim4,TIM_CHANNEL_2);
 	}
   if(GPIO_Pin==GTM016AN_VSYNC_Pin){
-		if(ADC_select==ADC_Internal){
-			HAL_SPI_Receive_DMA(&hspi4,(uint8_t*)img.image,484);
-			HAL_NVIC_DisableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
-		}
-		else if(ADC_select==ADC_External){
-			HAL_SPI_DeInit(&hspi4);
-			// preset external adc pointer
-			img.pixel=483;	// PCLK rising after Vsync fell is pixel (21,21)
-		}
+		// preset external adc pointer
+		img.pixel=483;	// PCLK rising after Vsync fell is pixel (21,21)
   }
   if(GPIO_Pin==B1_Pin){
 		// change source
@@ -210,7 +208,11 @@ int main(void)
 	HAL_NVIC_DisableIRQ(GTM016AN_PCLK_EXTI_IRQn);
 	HAL_GPIO_WritePin(GTM016AN_nRST_GPIO_Port,GTM016AN_nRST_Pin,GPIO_PIN_SET);
 	UI_Initial(LOGO_COLOUR,FONT_COLOUR,BACK_COLOUR);
+	HAL_SPI_Receive(&hspi4,(uint8_t*)img.image+img.pixel*2,1,1);
+	
+	HAL_TIM_PWM_Start_IT(&htim4,TIM_CHANNEL_2);
 	setADC(ADC_select);
+		
 	// Fake PCLK clock generator
 //	HAL_TIM_Base_Start_IT(&htim3);
 
@@ -407,7 +409,12 @@ void SystemClock_Config(void)
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance==TIM4){
-		HAL_SPI_Receive(&hspi3,(uint8_t*)img.image+img.pixel*2,1,1);
+		if(ADC_select==ADC_Internal){
+			HAL_SPI_Receive(&hspi4,(uint8_t*)img.image+img.pixel*2,1,1);
+		}
+		else if(ADC_select==ADC_External){
+			HAL_SPI_Receive(&hspi3,(uint8_t*)img.image+img.pixel*2,1,1);
+		}
 		if( img.pixel==  0 || img.pixel== 23 ||
 				img.pixel== 46 || img.pixel== 69 ||
 				img.pixel== 92 || img.pixel==115 ||

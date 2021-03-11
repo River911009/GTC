@@ -66,6 +66,7 @@ uint32_t calibration_R=146420;
 
 // for calculate move average using
 float average1=0.0,average2=0.0,resistor=0.0,slope=0.0;
+float tmpRes=0.0,tmpSlope=0.0,avgRes=0.0,avgSlope=0.0;
 uint16_t start=0,end=1320;
 
 // for average using
@@ -287,7 +288,7 @@ int main(void)
       switchResistor(i,1);
       getADCArray(1320,10);
 
-      if(resetValue==1 || countValue>50){
+      if(resetValue==1 || countValue>100){
         avgValue=(maxValue+minValue)/2;
         // avgValue=average1;
         maxValue=0;
@@ -315,8 +316,18 @@ int main(void)
 
       // shortToString();
       // CDC_Transmit_FS((uint8_t*)str,sizeof(str));
+			
+			tmpRes=(tmpRes+resistor)/2.0;
+			tmpSlope=(tmpSlope+slope)/2.0;
+			
+			if(countValue%10==0){
+				avgRes=tmpRes;
+				avgSlope=tmpSlope;
+				tmpRes=0.0;
+				tmpSlope=0.0;
+				reDraw((uint32_t)avgRes,avgSlope);
+			}
     }
-//    reDraw((uint32_t)resistor,slope);
 
     /* USER CODE END WHILE */
 
