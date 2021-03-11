@@ -45,6 +45,7 @@ frame_addr=[0,0,21,21]
 decode='Dec'
 grid=False
 defaultport=portList[0]
+addr_buffer=''
 
 
 # control panel generator
@@ -93,13 +94,15 @@ WindowLayout=[
       [sg.Image(filename='',background_color='black',key='__IMAGE__')],
       [
         sg.Text('',size=(20,1)),
-        sg.Button('Grid Off',size=(10,1),key='__GRID__')
+        sg.Button('100fps',size=(10,1),key='__GRID__')
       ]
     ],border_width=0),
 
-
-    sg.Input('',(10,1),key='_ADDR_'),sg.Input('',(10,1),key='_DATA_'),sg.Button('R'),sg.Button('W'),
-
+    sg.Frame(title='',layout=[
+      [sg.Text('',(10,1)),sg.Text('Address',(10,1)),sg.Text('Value',(10,1))],
+      [sg.Text('Dec',(10,1)),sg.Input('0',(10,1),key='_ADDR_'),sg.Input('0',(10,1),key='_DATA_'),sg.Button('R'),sg.Button('W')],
+      [sg.Text('Hex',(10,1)),sg.Input('0',(10,1),key='_ADDR2_',disabled=True),sg.Input('0',(10,1),key='_DATA2_',disabled=True),sg.Button('R'),sg.Button('W')],
+    ],border_width=0),
 
     sg.Frame(title='Registers',layout=[
       [
@@ -117,9 +120,9 @@ WindowLayout=[
       controller(1,'VID[7:0]','[7:0]','R'),
       controller(2,'slave_id[6:0]','[6:0]','R'),
       controller(3,'Reg_regreset','[0]','R/W'),
-      controller(5,'Reg_PD','[0]','R/W'),
+      # controller(5,'Reg_PD','[0]','R/W'),
       controller(9,'wp_code[7:0]','[7:0]','R/W'),
-      controller(16,'Reg_SPIImgOut_en','[0]','R/W'),
+      # controller(16,'Reg_SPIImgOut_en','[0]','R/W'),
       controller(18,'Reg_DigNp[7:0]','[7:0]','R/W'),
       controller(19,'Reg_DigNp[11:8]','[3:0]','R/W'),
       controller(20,'Reg_SysNp[7:0]','[7:0]','R/W'),
@@ -474,10 +477,8 @@ while True:
     getFrameSize()
 
 
-
-
   if event=='R' and portOpened:
-    tmp=sp.get_data(port,[97,int(values['_ADDR_'])])
+    tmp=sp.get_data(port,[97,int(values['_ADDR_'],0)])
     if tmp=='TIMEOUT':
       sp.serial_close(port)
       portOpened=False
@@ -488,10 +489,11 @@ while True:
       portDisconnect()
     else:
       window.find('_DATA_').update(str(tmp))
+      window.find('_DATA2_').update(str(hex(tmp)))
 
 
   if event=='W' and portOpened:
-    tmp=sp.send_data(port,[33,int(values['_ADDR_']),int(values['_DATA_'])])
+    tmp=sp.send_data(port,[33,int(values['_ADDR_'],0),int(values['_DATA_'],0)])
     if tmp=='TIMEOUT':
       port.close()
       portOpened=False

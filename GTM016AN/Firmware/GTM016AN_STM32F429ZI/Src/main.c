@@ -140,24 +140,69 @@ void getFrameSize(){
 //--------------
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin==GTM016AN_PCLK_Pin){
-		HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
-		__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_CC2);
-		__HAL_TIM_ENABLE(&htim4);
-		HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
-		//HAL_TIM_PWM_Start_IT(&htim4,TIM_CHANNEL_2);
+//			__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_CC2);
+//			__HAL_TIM_ENABLE(&htim4);
+			HAL_TIM_PWM_Start_IT(&htim4,TIM_CHANNEL_2);
 	}
   if(GPIO_Pin==GTM016AN_VSYNC_Pin){
-		// preset external adc pointer
-		img.pixel=483;	// PCLK rising after Vsync fell is pixel (21,21)
+			HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
+		if(ADC_select==ADC_Internal){
+			HAL_SPI_Receive_DMA(&hspi4,(uint8_t*)img.image,968);
+//			HAL_NVIC_DisableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
+//			HAL_NVIC_DisableIRQ(GTM016AN_PCLK_EXTI_IRQn);
+		}
+		else if(ADC_select==ADC_External){
+			// preset external adc pointer
+			img.pixel=483;	// PCLK rising after Vsync fell is pixel (21,21)
+		}
   }
   if(GPIO_Pin==B1_Pin){
+		HAL_NVIC_DisableIRQ(B1_Pin);
 		// change source
 		ADC_select=(ADC_select<2)? (ADC_select+1):ADC_Test;
 		// update ADC source
 		setADC(ADC_select);
+		HAL_NVIC_EnableIRQ(B1_Pin);
   }
 }
 
+//void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi){
+//	img.frame=0;
+//	if( img.pixel==  0 || img.pixel== 23 ||
+//				img.pixel== 46 || img.pixel== 69 ||
+//				img.pixel== 92 || img.pixel==115 ||
+//				img.pixel==138 || img.pixel==161 ||
+//				img.pixel==184 || img.pixel==207 ||
+//				img.pixel==230 || img.pixel==253 ||
+//				img.pixel==276 || img.pixel==299 ||
+//				img.pixel==322 || img.pixel==345 ||
+//				img.pixel==368 || img.pixel==391 ||
+//				img.pixel==414 || img.pixel==437 ||
+//				img.pixel==460 || img.pixel==483){
+//			imageValue[img.pixel/23]=img.image[0][img.pixel];
+//			img.image[img.frame][img.pixel]=0;
+//		}
+//		img.pixel=(img.pixel<483)? img.pixel+1:0;
+//}
+
+//void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
+//	img.frame=1;
+//	if( img.pixel==  0 || img.pixel== 23 ||
+//				img.pixel== 46 || img.pixel== 69 ||
+//				img.pixel== 92 || img.pixel==115 ||
+//				img.pixel==138 || img.pixel==161 ||
+//				img.pixel==184 || img.pixel==207 ||
+//				img.pixel==230 || img.pixel==253 ||
+//				img.pixel==276 || img.pixel==299 ||
+//				img.pixel==322 || img.pixel==345 ||
+//				img.pixel==368 || img.pixel==391 ||
+//				img.pixel==414 || img.pixel==437 ||
+//				img.pixel==460 || img.pixel==483){
+//			imageValue[img.pixel/23]=img.image[0][img.pixel];
+//			img.image[img.frame][img.pixel]=0;
+//		}
+//		img.pixel=(img.pixel<483)? img.pixel+1:0;
+//}
 
 
 /* USER CODE END 0 */
@@ -208,12 +253,16 @@ int main(void)
 	HAL_NVIC_DisableIRQ(GTM016AN_PCLK_EXTI_IRQn);
 	HAL_GPIO_WritePin(GTM016AN_nRST_GPIO_Port,GTM016AN_nRST_Pin,GPIO_PIN_SET);
 	UI_Initial(LOGO_COLOUR,FONT_COLOUR,BACK_COLOUR);
-	HAL_SPI_Receive(&hspi4,(uint8_t*)img.image+img.pixel*2,1,1);
-	
+
+	HAL_SPI_Receive(&hspi4,(uint8_t*)img.image+img.pixel*2,1,1);	
 	HAL_TIM_PWM_Start_IT(&htim4,TIM_CHANNEL_2);
 	setADC(ADC_select);
+	
+	
+
+	
 		
-	// Fake PCLK clock generator
+	// software PCLK clock generator
 //	HAL_TIM_Base_Start_IT(&htim3);
 
 
@@ -409,10 +458,10 @@ void SystemClock_Config(void)
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance==TIM4){
-		if(ADC_select==ADC_Internal){
-			HAL_SPI_Receive(&hspi4,(uint8_t*)img.image+img.pixel*2,1,1);
-		}
-		else if(ADC_select==ADC_External){
+//		if(ADC_select==ADC_Internal){
+//			HAL_SPI_Receive(&hspi4,(uint8_t*)img.image+img.pixel*2,1,1);
+//		}else 
+		if(ADC_select==ADC_External){
 			HAL_SPI_Receive(&hspi3,(uint8_t*)img.image+img.pixel*2,1,1);
 		}
 		if( img.pixel==  0 || img.pixel== 23 ||

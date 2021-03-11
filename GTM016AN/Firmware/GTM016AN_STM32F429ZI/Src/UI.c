@@ -150,6 +150,13 @@ void setADC(ADC_SRC src){
 	// stop external adc cnv clock and pclk
 	HAL_NVIC_DisableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
 	HAL_NVIC_DisableIRQ(GTM016AN_PCLK_EXTI_IRQn);
+	__HAL_GPIO_EXTI_CLEAR_IT(GTM016AN_PCLK_Pin);
+	__HAL_GPIO_EXTI_CLEAR_IT(GTM016AN_VSYNC_Pin);
+//	HAL_SPI_DMAStop(&hspi4);
+//	HAL_DMA_Abort(&hdma_spi4_rx);
+	HAL_SPI_DeInit(&hspi3);
+	HAL_SPI_DeInit(&hspi4);
+	HAL_DMA_DeInit(&hdma_spi4_rx);
 	// start correspond function
 	switch(src){
 		case ADC_Test:
@@ -168,10 +175,12 @@ void setADC(ADC_SRC src){
 			// stop and reload spi4 and dma
 //			HAL_SPI_DeInit(&hspi4);
 //			HAL_DMA_DeInit(&hdma_spi4_rx);
-//			HAL_DMA_Init(&hdma_spi4_rx);
-//			HAL_SPI_Init(&hspi4);
+			img.frame=0;
+		
+			HAL_DMA_Init(&hdma_spi4_rx);
+			HAL_SPI_Init(&hspi4);
 			// sync with vsync input
-			HAL_NVIC_EnableIRQ(GTM016AN_PCLK_EXTI_IRQn);
+//			HAL_NVIC_EnableIRQ(GTM016AN_PCLK_EXTI_IRQn);
 			HAL_NVIC_EnableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
 			break;
 		case ADC_External:
@@ -180,7 +189,8 @@ void setADC(ADC_SRC src){
 			BSP_LCD_DisplayStringAtLine90Degree(62,RADIO_SHIFT+20,(uint8_t*)" Internal ",10,ui.fontColour,ui.backColour);
 			BSP_LCD_DisplayStringAtLine90Degree(62,RADIO_SHIFT+40,(uint8_t*)">External<",10,ui.backColour,ui.fontColour);
 			// reload spi3
-//			HAL_SPI_Init(&hspi3);
+			HAL_SPI_Init(&hspi3);
+			img.frame=0;
 			// sync with vsync input
 			HAL_NVIC_EnableIRQ(GTM016AN_PCLK_EXTI_IRQn);
 			HAL_NVIC_EnableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
