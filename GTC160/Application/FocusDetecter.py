@@ -90,6 +90,15 @@ while True:
   RawFrame=np.reshape(a=frame,newshape=(180,160))
   RawFrame=RawFrame[:120][:]
 
+  face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+  faces = face_cascade.detectMultiScale(RawFrame, 1.1, 4)
+  for (x, y, w, h) in faces:
+    cv2.rectangle(RawFrame, (x, y), (x+w, y+h), (255, 0, 0), 1)
+    window.find('__X1__').update(x)
+    window.find('__Y1__').update(y)
+    window.find('__X2__').update(x+w)
+    window.find('__Y2__').update(y+h)
+
   OUT=RawFrame.copy()
 
   cv2.rectangle(
@@ -117,10 +126,10 @@ while True:
   # grad_y = cv.Scharr(gray,ddepth,0,1)
   grad_y=cv2.Sobel(std_range, cv2.CV_16S, 0, 1, ksize=3, scale=1, delta=0, borderType=cv2.BORDER_DEFAULT)
 
-  # abs_grad_x=cv2.convertScaleAbs(grad_x)
-  # abs_grad_y=cv2.convertScaleAbs(grad_y)
-  # fm = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
-  sqr_grad_x=gr
+  abs_grad_x=cv2.convertScaleAbs(grad_x)
+  abs_grad_y=cv2.convertScaleAbs(grad_y)
+  fm = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+  # sqr_grad_x=gr
   
 
   window.find('__AVG__').update('%.4f'%avg)

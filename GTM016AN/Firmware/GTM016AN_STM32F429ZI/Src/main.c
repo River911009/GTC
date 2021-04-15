@@ -61,7 +61,7 @@
 uint8_t shift_=10,direct_=0;
 
 
-ADC_SRC ADC_select=ADC_Internal;//Test;
+ADC_SRC ADC_select=ADC_External;//Test;
 extern frame_BufferTypeDef img;
 extern ui_TypeDef ui;
 
@@ -140,9 +140,13 @@ void getFrameSize(){
 //--------------
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin==GTM016AN_PCLK_Pin){
-//			__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_CC2);
-//			__HAL_TIM_ENABLE(&htim4);
-			HAL_TIM_PWM_Start_IT(&htim4,TIM_CHANNEL_2);
+		HAL_GPIO_TogglePin(LD4_GPIO_Port,LD4_Pin);
+			__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_CC2);
+			__HAL_TIM_ENABLE(&htim4);
+			__HAL_TIM_ENABLE_IT(&htim5, TIM_IT_CC1);
+			__HAL_TIM_ENABLE(&htim5);
+//			HAL_TIM_PWM_Start_IT(&htim4,TIM_CHANNEL_2);
+//			HAL_TIM_PWM_Start_IT(&htim5,TIM_CHANNEL_1);
 	}
   if(GPIO_Pin==GTM016AN_VSYNC_Pin){
 			HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
@@ -245,6 +249,7 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -352,8 +357,12 @@ int main(void)
         case 97:
           // user_cdc_buffer.data[0]=ack=>97;
           HAL_I2C_Master_Transmit(&hi2c3,0x40,&user_cdc_buffer.data[1],1,10);
-          HAL_I2C_Master_Receive(&hi2c3,0x40,&ctrlBuffer[user_cdc_buffer.data[1]],1,10);
-          user_cdc_buffer.data[1]=ctrlBuffer[user_cdc_buffer.data[1]];
+          if(HAL_I2C_Master_Receive(&hi2c3,0x40,&ctrlBuffer[user_cdc_buffer.data[1]],1,10)==HAL_OK){
+						user_cdc_buffer.data[1]=ctrlBuffer[user_cdc_buffer.data[1]];
+					}
+					else{
+						user_cdc_buffer.data[1]=0;
+					}
           CDC_Transmit_HS(user_cdc_buffer.data,2);
           break;
       /**
@@ -366,7 +375,9 @@ int main(void)
           CDC_Transmit_HS(user_cdc_buffer.data,1);
           for(commands[0]=0;commands[0]<sizeof(ctrlBuffer);commands[0]++){
             HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,1,10);
-            HAL_I2C_Master_Receive(&hi2c3,0x40,&ctrlBuffer[commands[0]],1,10);
+            if(HAL_I2C_Master_Receive(&hi2c3,0x40,&ctrlBuffer[commands[0]],1,10)!=HAL_OK){
+							ctrlBuffer[commands[0]]=0;
+						}
           }
           CDC_Transmit_HS(ctrlBuffer,sizeof(ctrlBuffer));
           break;
@@ -457,7 +468,7 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim){
-	if(htim->Instance==TIM4){
+	if(htim->Instance==TIM5){
 //		if(ADC_select==ADC_Internal){
 //			HAL_SPI_Receive(&hspi4,(uint8_t*)img.image+img.pixel*2,1,1);
 //		}else 

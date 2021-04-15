@@ -28,7 +28,7 @@ from numpy import zeros
 from numpy import uint8
 
 
-WAIT_TIME=0.1
+WAIT_TIME=0.02
 
 
 ''' Lists out all usable serial port names

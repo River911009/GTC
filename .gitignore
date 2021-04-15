@@ -1,5 +1,6 @@
 # GTC160
-
+GTC160/Application/__pycache__/*
+GTC160/Firmware/*
 
 # GTM016AN
 GTM016AN/Application/__pycache__/*
@@ -9,9 +10,21 @@ GTM016AN/Firmware/GTM016AN_STM32F429ZI/MDK-ARM/*
 GTM016AN/Firmware/GTM016AN_STM32F429ZI/Middlewares/*
 GTM016AN/Firmware/GTM016AN_STM32F429ZI/.mxproject
 
+GTM016AN/Firmware/GTM016AN_STM32G071KB/Drivers/*
+GTM016AN/Firmware/GTM016AN_STM32G071KB/MDK-ARM/*
+GTM016AN/Firmware/GTM016AN_STM32G071KB/Middlewares/*
+GTM016AN/Firmware/GTM016AN_STM32G071KB/.mxproject
+
 GTM016AN/Hardware/*
+GTM016AN/Noise STD testing file/*
+GTM016AN/roicTest_std/*
+GTM016AN/roicTest_v20210122/*
+GTM016AN/roicTest_v20210217/*
 
 # VOxmeter
+VOxmeter/A20_test_20210310/*
+VOxmeter/Application/*
+
 VOxmeter/Firmware/VOxmeter_STM32F429ZI/Drivers/*
 VOxmeter/Firmware/VOxmeter_STM32F429ZI/MDK-ARM/*
 VOxmeter/Firmware/VOxmeter_STM32F429ZI/Middlewares/*
@@ -26,3 +39,5 @@ VOxmeter/Firmware/VOxmeter_STM32F469NI/Drivers/*
 VOxmeter/Firmware/VOxmeter_STM32F469NI/MDK-ARM/*
 VOxmeter/Firmware/VOxmeter_STM32F469NI/Middlewares/*
 VOxmeter/Firmware/VOxmeter_STM32F469NI/.mxproject
+
+VOxmeter/Hardware/*

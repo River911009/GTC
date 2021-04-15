@@ -46,6 +46,7 @@ decode='Dec'
 grid=False
 defaultport=portList[0]
 addr_buffer=''
+pset_list=[]
 
 
 # control panel generator
@@ -92,9 +93,9 @@ WindowLayout=[
   [
     sg.Frame(title='',layout=[
       [sg.Image(filename='',background_color='black',key='__IMAGE__')],
+      [sg.Listbox([],size=(30,5),key='__PSET__')],
       [
-        sg.Text('',size=(20,1)),
-        sg.Button('100fps',size=(10,1),key='__GRID__')
+        sg.Button('SET!',size=(10,1),key='__GRID__')
       ]
     ],border_width=0),
 
@@ -380,7 +381,12 @@ def getValue(value,decode):
 ########################################
 # Main initial function
 ########################################
-window=sg.Window(WINDOW_TITLE).Layout(WindowLayout)
+print(os.listdir())
+os.chdir('GTM016AN/Application')
+pset_list=[a for a in os.listdir('./') if a.endswith('.txt')]
+window=sg.Window(WINDOW_TITLE).Layout(WindowLayout).Finalize()
+
+window.FindElement('__PSET__').Update(pset_list)
 
 ########################################
 # Loop function
@@ -420,61 +426,92 @@ while True:
     #   window.Element('__GRID__').update('Grid On')
 
     if portOpened:
-      set_value[int.from_bytes(b'\x09', byteorder='big', signed=False)]=int.from_bytes(b'\x5a', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x0e', byteorder='big', signed=False)]=int.from_bytes(b'\x30', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x12', byteorder='big', signed=False)]=int.from_bytes(b'\xea', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x13', byteorder='big', signed=False)]=int.from_bytes(b'\x00', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x14', byteorder='big', signed=False)]=int.from_bytes(b'\x02', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x15', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x19', byteorder='big', signed=False)]=int.from_bytes(b'\x04', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x26', byteorder='big', signed=False)]=int.from_bytes(b'\x03', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x27', byteorder='big', signed=False)]=int.from_bytes(b'\x1f', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x3c', byteorder='big', signed=False)]=int.from_bytes(b'\x8f', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x3d', byteorder='big', signed=False)]=int.from_bytes(b'\x92', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x3e', byteorder='big', signed=False)]=int.from_bytes(b'\x0f', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x3f', byteorder='big', signed=False)]=int.from_bytes(b'\x0f', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x40', byteorder='big', signed=False)]=int.from_bytes(b'\x05', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x42', byteorder='big', signed=False)]=int.from_bytes(b'\x0c', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x44', byteorder='big', signed=False)]=int.from_bytes(b'\x01', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x47', byteorder='big', signed=False)]=int.from_bytes(b'\x7c', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x48', byteorder='big', signed=False)]=int.from_bytes(b'\x06', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x4a', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x4b', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x4c', byteorder='big', signed=False)]=int.from_bytes(b'\x0e', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x4d', byteorder='big', signed=False)]=int.from_bytes(b'\x0e', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x50', byteorder='big', signed=False)]=int.from_bytes(b'\x02', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x52', byteorder='big', signed=False)]=int.from_bytes(b'\x80', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x53', byteorder='big', signed=False)]=int.from_bytes(b'\x7c', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x54', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x55', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x5a', byteorder='big', signed=False)]=int.from_bytes(b'\x44', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x5d', byteorder='big', signed=False)]=int.from_bytes(b'\x89', byteorder='big', signed=False)
-      set_value[int.from_bytes(b'\x5e', byteorder='big', signed=False)]=int.from_bytes(b'\xd3', byteorder='big', signed=False)
-      # set_value[int.from_bytes(b'\x09', byteorder='big', signed=False)]=int.from_bytes(b'\x00', byteorder='big', signed=False)
-      for addr in [9,14,18,19,20,21,25,38,39,60,61,62,63,64,66,68,71,72,74,75,76,77,80,82,83,84,85,90,93,94]:
-        tmp=sp.send_data(port,[33,addr,set_value[addr]])
+      if not values['__PSET__']==[]:
+        tmp=sp.send_data(port,[33,3,1])
         if tmp=='TIMEOUT':
           port.close()
           portOpened=False
           portDisconnect()
           sg.popup('I2C NACK')
-          break
         if tmp=='DISCONNECT':
           portOpened=False
           portDisconnect()
-    else:
-      addr=int(event[6:])%256
-      tmp=sp.send_data(port,[33,addr,set_value[addr]])
-      if tmp=='TIMEOUT':
-        port.close()
-        portOpened=False
-        portDisconnect()
-        sg.popup('I2C NACK')
-      if tmp=='DISCONNECT':
-        portOpened=False
-        portDisconnect()
-    sp.send_data(port,[33,9,0])
-    getFrameSize()
+        with open(values['__PSET__'][0],'r') as pset:
+          line=pset.readline()
+          while line:
+            if line[:1]=='w':
+              tmp=sp.send_data(port,[33,int(line.split(', ')[1],0),int(line.split(', ')[2].replace(',',''),0)])
+              if tmp=='TIMEOUT':
+                port.close()
+                portOpened=False
+                portDisconnect()
+                sg.popup('I2C NACK')
+              if tmp=='DISCONNECT':
+                portOpened=False
+                portDisconnect()
+            line=pset.readline()
+          pset.close()
+    if portOpened:
+      sg.popup('OK')
+        
+
+
+
+
+    #   set_value[int.from_bytes(b'\x09', byteorder='big', signed=False)]=int.from_bytes(b'\x5a', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x0e', byteorder='big', signed=False)]=int.from_bytes(b'\x30', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x12', byteorder='big', signed=False)]=int.from_bytes(b'\xea', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x13', byteorder='big', signed=False)]=int.from_bytes(b'\x00', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x14', byteorder='big', signed=False)]=int.from_bytes(b'\x02', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x15', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x19', byteorder='big', signed=False)]=int.from_bytes(b'\x04', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x26', byteorder='big', signed=False)]=int.from_bytes(b'\x03', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x27', byteorder='big', signed=False)]=int.from_bytes(b'\x1f', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x3c', byteorder='big', signed=False)]=int.from_bytes(b'\x8f', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x3d', byteorder='big', signed=False)]=int.from_bytes(b'\x92', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x3e', byteorder='big', signed=False)]=int.from_bytes(b'\x0f', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x3f', byteorder='big', signed=False)]=int.from_bytes(b'\x0f', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x40', byteorder='big', signed=False)]=int.from_bytes(b'\x05', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x42', byteorder='big', signed=False)]=int.from_bytes(b'\x0c', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x44', byteorder='big', signed=False)]=int.from_bytes(b'\x01', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x47', byteorder='big', signed=False)]=int.from_bytes(b'\x7c', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x48', byteorder='big', signed=False)]=int.from_bytes(b'\x06', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x4a', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x4b', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x4c', byteorder='big', signed=False)]=int.from_bytes(b'\x0e', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x4d', byteorder='big', signed=False)]=int.from_bytes(b'\x0e', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x50', byteorder='big', signed=False)]=int.from_bytes(b'\x02', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x52', byteorder='big', signed=False)]=int.from_bytes(b'\x80', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x53', byteorder='big', signed=False)]=int.from_bytes(b'\x7c', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x54', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x55', byteorder='big', signed=False)]=int.from_bytes(b'\x0d', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x5a', byteorder='big', signed=False)]=int.from_bytes(b'\x44', byteorder='big', signed=False)
+    #   set_value[int.from_bytes(b'\x5d', byteorder='big', signed=False)]=int.from_bytes(b'\x89', byteorder='big', signed=False)
+    #   # set_value[int.from_bytes(b'\x09', byteorder='big', signed=False)]=int.from_bytes(b'\x00', byteorder='big', signed=False)
+    #   for addr in [9,14,18,19,20,21,25,38,39,60,61,62,63,64,66,68,71,72,74,75,76,77,80,82,83,84,85,90,93,94]:
+    #     tmp=sp.send_data(port,[33,addr,set_value[addr]])
+    #     if tmp=='TIMEOUT':
+    #       port.close()
+    #       portOpened=False
+    #       portDisconnect()
+    #       sg.popup('I2C NACK')
+    #       break
+    #     if tmp=='DISCONNECT':
+    #       portOpened=False
+    #       portDisconnect()
+    # else:
+    #   addr=int(event[6:])%256
+    #   tmp=sp.send_data(port,[33,addr,set_value[addr]])
+    #   if tmp=='TIMEOUT':
+    #     port.close()
+    #     portOpened=False
+    #     portDisconnect()
+    #     sg.popup('I2C NACK')
+    #   if tmp=='DISCONNECT':
+    #     portOpened=False
+    #     portDisconnect()
+    # sp.send_data(port,[33,9,0])
+    # getFrameSize()
 
 
   if event=='R' and portOpened:

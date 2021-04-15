@@ -107,7 +107,7 @@ void UI_Initial(
 	BSP_LCD_Init();
 //  BSP_LCD_LayerDefaultInit(LCD_BACKGROUND_LAYER,LCD_FRAME_BUFFER);
 	BSP_LCD_LayerDefaultInit(LCD_FOREGROUND_LAYER,LCD_FRAME_BUFFER);
-
+	
 	BSP_LCD_SelectLayer(LCD_FOREGROUND_LAYER);
 	BSP_LCD_DisplayOn();
 	BSP_LCD_Clear(ui.backColour);
@@ -180,6 +180,10 @@ void setADC(ADC_SRC src){
 			HAL_DMA_Init(&hdma_spi4_rx);
 			HAL_SPI_Init(&hspi4);
 			// sync with vsync input
+    HAL_NVIC_SetPriority(TIM3_IRQn, 1, 0);
+    HAL_NVIC_SetPriority(TIM4_IRQn, 1, 0);
+			HAL_NVIC_SetPriority(EXTI3_IRQn,1,0);
+		
 //			HAL_NVIC_EnableIRQ(GTM016AN_PCLK_EXTI_IRQn);
 			HAL_NVIC_EnableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
 			break;
@@ -192,6 +196,11 @@ void setADC(ADC_SRC src){
 			HAL_SPI_Init(&hspi3);
 			img.frame=0;
 			// sync with vsync input
+			
+			HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+			HAL_NVIC_SetPriority(TIM4_IRQn, 0, 0);
+			HAL_NVIC_SetPriority(EXTI3_IRQn,0,0);
+		
 			HAL_NVIC_EnableIRQ(GTM016AN_PCLK_EXTI_IRQn);
 			HAL_NVIC_EnableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
 			break;
@@ -209,7 +218,7 @@ void setADC(ADC_SRC src){
 void ScreenDrawLoop(frame_BufferTypeDef* src){
 	for(uint8_t y=0;y<22;y++){
 		for(uint8_t x=0;x<22;x++){
-			BSP_LCD_SetTextColor((src->image[src->frame][(y*22+x)]%256)*BASE_COLOUR|0xFF000000);
+			BSP_LCD_SetTextColor(((src->image[src->frame][(y*22+x)]/1)%256)*BASE_COLOUR|0xFF000000);
 			BSP_LCD_FillRect(x*10+10,y*10+FRAME_SHIFT,10,10);
 		}
 	}
