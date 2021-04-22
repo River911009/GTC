@@ -44,11 +44,11 @@
 /* USER CODE BEGIN PV */
 
 extern uint16_t image[2][484];
-extern uint8_t readyFrame;
-extern uint8_t I2C_IF_TxBuffer[44];
+extern uint8_t  readyFrame;
 
-uint8_t avgCounter=0;
-uint8_t buffer[44];
+extern uint8_t  avgCounter;
+extern uint16_t buffer[484];
+extern uint16_t image_FIFO[484];
 
 /* USER CODE END PV */
 
@@ -63,7 +63,7 @@ uint8_t buffer[44];
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_i2c2_rx;
+extern DMA_HandleTypeDef hdma_memtomem_dma1_channel3;
 extern DMA_HandleTypeDef hdma_i2c2_tx;
 extern I2C_HandleTypeDef hi2c2;
 extern DMA_HandleTypeDef hdma_spi1_rx;
@@ -173,29 +173,29 @@ void DMA1_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
 
 	readyFrame=(readyFrame)? 0:1;
-	
+
 	if(avgCounter==0){
-		for(uint16_t i=0;i<11;i++){
-			buffer[i*2]=(uint8_t)(image[readyFrame][i*22]>>8);
-			buffer[i*2+1]=(uint8_t)(image[readyFrame][i*22]);
+		for(uint16_t i=0;i<484;i++){
+			buffer[i]=image[readyFrame][i];
 		}
 		avgCounter++;
 	}
 	else if(avgCounter<7){
-		for(uint16_t i=0;i<11;i++){
-			buffer[i*2]=((uint8_t)(image[readyFrame][i*22]>>8)+buffer[i*2])/2;
-			buffer[i*2+1]=((uint8_t)(image[readyFrame][i*22])+buffer[i*2+1])/2;
+		for(uint16_t i=0;i<484;i++){
+			buffer[i]=(image[readyFrame][i]+buffer[i])/2;
 		}
 		avgCounter++;
 	}
 	else{
-		for(uint16_t i=0;i<22;i++){
-			I2C_IF_TxBuffer[i]=buffer[i];
+		for(uint16_t i=0;i<484;i++){
+			buffer[i]=(image[readyFrame][i]+buffer[i])/2;
+		}
+//		HAL_DMA_Start(&hdma_memtomem_dma1_channel3,(uint32_t)buffer,(uint32_t)I2C_IF_TxBuffer,968/4);
+		for(uint16_t i=0;i<484;i++){
+			image_FIFO[i]=buffer[i];
 		}
 		avgCounter=0;
-		HAL_GPIO_TogglePin(test_GPIO_Port,test_Pin);
 	}
-	
 
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi1_rx);
@@ -212,8 +212,8 @@ void DMA1_Channel2_3_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel2_3_IRQn 0 */
 
   /* USER CODE END DMA1_Channel2_3_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_i2c2_rx);
   HAL_DMA_IRQHandler(&hdma_i2c2_tx);
+  HAL_DMA_IRQHandler(&hdma_memtomem_dma1_channel3);
   /* USER CODE BEGIN DMA1_Channel2_3_IRQn 1 */
 
   /* USER CODE END DMA1_Channel2_3_IRQn 1 */

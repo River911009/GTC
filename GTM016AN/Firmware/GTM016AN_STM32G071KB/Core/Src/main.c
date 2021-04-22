@@ -38,6 +38,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+#define FRAME_TO_SYNC 1
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -49,15 +52,25 @@
 
 /* USER CODE BEGIN PV */
 
-uint8_t  sync=0;
 uint16_t ntcRaw=0;
-uint8_t  commands[2];
 
+uint8_t  I2C_cmd[2];
+
+uint8_t  I2C_IF_TxStatus=0;
 uint8_t  I2C_IF_RxBuffer[2];
-uint8_t  I2C_IF_TxBuffer[44];
+uint8_t  I2C_IF_TxBuffer[968];
+
+uint8_t  sync=0;
 
 uint8_t  readyFrame=1;
 uint16_t image[2][484];
+
+uint8_t  avgCounter=0;
+uint16_t buffer[484];
+uint16_t image_FIFO[484];
+
+// for debug
+uint8_t  state;
 
 /* USER CODE END PV */
 
@@ -71,43 +84,67 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 
 
-//void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
-//{
-//	HAL_GPIO_TogglePin(test_GPIO_Port,test_Pin);
-//	HAL_I2C_EnableListen_IT(hi2c); // slave is ready again
-//}
+void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	if(hi2c==&hi2c2){
+		HAL_I2C_EnableListen_IT(hi2c);
+	}
+}
 
-//void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
-//{
-////	HAL_GPIO_WritePin( test_GPIO_Port, test_Pin, GPIO_PIN_SET );
-////	if( TransferDirection==I2C_DIRECTION_TRANSMIT ) {
-//////		if( first ) {
-////			HAL_I2C_Slave_Receive_IT(hi2c,I2C_IF_RxBuffer,2);
-//////		} else {
-//////			HAL_I2C_Slave_Seq_Receive_IT(hi2c, &ram[offset], 1, I2C_NEXT_FRAME);
-//////		}
-////	} else {
-////		HAL_I2C_Slave_Transmit_IT(hi2c,I2C_IF_RxBuffer,2);
-////	}
-////	HAL_GPIO_WritePin( test_GPIO_Port, test_Pin, GPIO_PIN_RESET );
-//}
+void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
+{
+	if(hi2c==&hi2c2){
+//  	__HAL_I2C_CLEAR_FLAG(hi2c,I2C_FLAG_ADDR);
+		if(TransferDirection==I2C_DIRECTION_TRANSMIT){
+			HAL_I2C_Slave_Seq_Receive_IT(hi2c,I2C_IF_RxBuffer,2,I2C_FIRST_AND_NEXT_FRAME);
+		}
+		else{
+			uint16_t cmd=(I2C_IF_RxBuffer[0]<<8)+I2C_IF_RxBuffer[1];
+			if(cmd<484){
+				HAL_I2C_Slave_Seq_Transmit_IT(hi2c,&I2C_IF_TxBuffer[cmd*2],2,I2C_FIRST_FRAME);
+			}
+			else if(cmd==500){
+//				HAL_I2C_Slave_Seq_Transmit_IT(hi2c,I2C_IF_TxBuffer,968,I2C_FIRST_FRAME);
+				HAL_I2C_Slave_Transmit_DMA(hi2c,I2C_IF_TxBuffer,968);
+			}
+			else{
+				I2C_IF_TxBuffer[0]=0xEE;
+				HAL_I2C_Slave_Seq_Transmit_IT(hi2c,I2C_IF_TxBuffer,1,I2C_FIRST_FRAME);
+			}
+		}
+	}
+}
 
 
 void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 //	HAL_I2C_Slave_Transmit_IT(&hi2c2, I2C_IF_TxBuffer, 2);
-	HAL_I2C_Slave_Transmit_DMA(&hi2c2, I2C_IF_TxBuffer, 22);
-	
+//	HAL_I2C_Slave_Transmit_DMA(&hi2c2, I2C_IF_TxBuffer, 22);
 }
 
 void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-	HAL_I2C_Slave_Receive_IT(&hi2c2, I2C_IF_RxBuffer, 1); // Size set 1 for Slave_Transmit_DMA, set 2 for Slave_Transmit_IT
+//	HAL_I2C_Slave_Receive_IT(&hi2c2, I2C_IF_RxBuffer, 1); // Size set 1 for Slave_Transmit_DMA, set 2 for Slave_Transmit_IT
+//	HAL_I2C_Slave_Seq_Transmit_IT(hi2c, I2C_IF_TxBuffer, 22, I2C_FIRST_FRAME);
+
+	if(hi2c==&hi2c2){
+		/* Copy 8-frames average image to I2C_IF transmit buffer */
+		for(uint16_t i=0;i<484;i++){
+			I2C_IF_TxBuffer[i*2+1]=(uint8_t)image_FIFO[i];
+			I2C_IF_TxBuffer[i*2]=(uint8_t)(image_FIFO[i]>>8);
+		}
+	}
 }
 
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
+{
+//	HAL_GPIO_TogglePin(test_GPIO_Port,test_Pin);
+}
+
+/* VSYNC callback to handdle frame synchronize */
 void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin==VSYNC_Pin){
-		if(sync>1){
+		if(sync>FRAME_TO_SYNC){
 			HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 			HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
 			HAL_SPI_Receive_DMA(&hspi1,(uint8_t*)image,sizeof(image)/2);
@@ -116,6 +153,92 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin){
 		sync++;
 	}
 }
+/*---------- Sub-function block start ----------*/
+
+/* frameRate only 50 and 100 fps so far */
+void GTM016AN_Init(uint8_t frameRate){
+	I2C_cmd[0]=0x09;I2C_cmd[1]=0x5a;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x0e;I2C_cmd[1]=0x30;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x12;I2C_cmd[1]=0xea;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x13;I2C_cmd[1]=0x0;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x14;I2C_cmd[1]=0x02;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x15;I2C_cmd[1]=0x0d;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x19;I2C_cmd[1]=0x04;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x26;I2C_cmd[1]=0x03;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x27;I2C_cmd[1]=0x1d;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x3c;I2C_cmd[1]=0x8f;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x3d;I2C_cmd[1]=0x92;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x3e;I2C_cmd[1]=0x0f;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x3f;I2C_cmd[1]=0x0f;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x40;I2C_cmd[1]=0x05;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x42;I2C_cmd[1]=0x0c;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x44;I2C_cmd[1]=0x01;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x47;I2C_cmd[1]=0x7c;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x48;I2C_cmd[1]=0x06;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x4a;I2C_cmd[1]=0x0d;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x4b;I2C_cmd[1]=0x0d;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x4c;I2C_cmd[1]=0x0e;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x4d;I2C_cmd[1]=0x0e;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x50;I2C_cmd[1]=0x02;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x52;I2C_cmd[1]=0x80;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x53;I2C_cmd[1]=0x7c;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x54;I2C_cmd[1]=0x0d;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x55;I2C_cmd[1]=0x0d;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x5a;I2C_cmd[1]=0x44;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x5d;I2C_cmd[1]=0x89;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x5d;I2C_cmd[1]=0xa7;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x60;I2C_cmd[1]=0xb7;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x26;I2C_cmd[1]=0x08;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	I2C_cmd[0]=0x0e;I2C_cmd[1]=0x3e;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+
+	if(frameRate==50){
+		I2C_cmd[0]=0x14;I2C_cmd[1]=0x04;
+		HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	}
+	else if(frameRate==100){
+		I2C_cmd[0]=0x14;I2C_cmd[1]=0x02;
+		HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+	}
+
+	I2C_cmd[0]=0x09;I2C_cmd[1]=0x0;
+	HAL_I2C_Master_Transmit(&hi2c1,0x40,I2C_cmd,2,10);
+}
+
+/*---------- Sub-function block end   ----------*/
+
 
 /* USER CODE END 0 */
 
@@ -157,84 +280,20 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-	// Disable VSYNC interrupt
+	/* Disable VSYNC interrupt to initial GTM016AN */
 	HAL_NVIC_DisableIRQ(VSYNC_EXTI_IRQn);
-
-	// GTM016AN 100fps setting script
-	commands[0]=0x09;commands[1]=0x5a;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x0e;commands[1]=0x30;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x12;commands[1]=0xea;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x13;commands[1]=0x0;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x14;commands[1]=0x02;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x15;commands[1]=0x0d;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x19;commands[1]=0x04;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x26;commands[1]=0x03;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x27;commands[1]=0x1d;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x3c;commands[1]=0x8f;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x3d;commands[1]=0x92;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x3e;commands[1]=0x0f;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x3f;commands[1]=0x0f;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x40;commands[1]=0x05;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x42;commands[1]=0x0c;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x44;commands[1]=0x01;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x47;commands[1]=0x7c;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x48;commands[1]=0x06;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x4a;commands[1]=0x0d;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x4b;commands[1]=0x0d;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x4c;commands[1]=0x0e;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x4d;commands[1]=0x0e;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x50;commands[1]=0x02;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x52;commands[1]=0x80;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x53;commands[1]=0x7c;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x54;commands[1]=0x0d;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x55;commands[1]=0x0d;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x5a;commands[1]=0x44;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x5d;commands[1]=0x89;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x5d;commands[1]=0xa7;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x60;commands[1]=0xb7;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x26;commands[1]=0x08;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x0e;commands[1]=0x3e;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-	commands[0]=0x09;commands[1]=0x0;
-	HAL_I2C_Master_Transmit(&hi2c1,0x40,commands,2,10);
-
+	GTM016AN_Init(100);
 	HAL_Delay(1000);
 	HAL_NVIC_EnableIRQ(VSYNC_EXTI_IRQn);
 
-//	HAL_I2C_EnableListen_IT(&hi2c2);
-	HAL_I2C_Slave_Receive_IT(&hi2c2, I2C_IF_RxBuffer, 1);
+//	for(uint16_t i=0;i<484;i++){
+//		I2C_IF_TxBuffer[i*2]=i/256;
+//		I2C_IF_TxBuffer[i*2+1]=i%256;
+//	}
+
+	HAL_I2C_EnableListen_IT(&hi2c2);
+//	HAL_I2C_Slave_Seq_Receive_IT(&hi2c2, I2C_IF_RxBuffer, 1, I2C_LAST_FRAME);
+//	HAL_I2C_Slave_Receive_IT(&hi2c2, I2C_IF_RxBuffer, 1);
 
 
   /* USER CODE END 2 */
@@ -246,7 +305,8 @@ int main(void)
 //		HAL_ADC_Start(&hadc1);
 //		HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY);
 //		ntcRaw=HAL_ADC_GetValue(&hadc1);
-		HAL_Delay(1000);
+		state=HAL_I2C_GetState(&hi2c2);
+		HAL_Delay(10);
 
     /* USER CODE END WHILE */
 

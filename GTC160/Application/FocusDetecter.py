@@ -1,3 +1,12 @@
+  ''' FocusDetecter
+
+    GTC160 -> display on GUI
+    get a number of focus status
+
+    by Riviere @ 8 Jan, 2021
+
+  '''
+
 import cv2
 import numpy as np
 import PySimpleGUI as sg
