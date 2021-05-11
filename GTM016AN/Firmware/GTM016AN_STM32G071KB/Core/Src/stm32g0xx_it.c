@@ -43,12 +43,14 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 
-extern uint16_t image[2][484];
 extern uint8_t  readyFrame;
+extern uint16_t image[2][484];
 
 extern uint8_t  avgCounter;
-extern uint16_t buffer[484];
+extern uint32_t buffer[484];
 extern uint16_t image_FIFO[484];
+
+extern uint16_t std[22];
 
 /* USER CODE END PV */
 
@@ -67,6 +69,7 @@ extern DMA_HandleTypeDef hdma_memtomem_dma1_channel3;
 extern DMA_HandleTypeDef hdma_i2c2_tx;
 extern I2C_HandleTypeDef hi2c2;
 extern DMA_HandleTypeDef hdma_spi1_rx;
+extern TIM_HandleTypeDef htim3;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -182,19 +185,24 @@ void DMA1_Channel1_IRQHandler(void)
 	}
 	else if(avgCounter<7){
 		for(uint16_t i=0;i<484;i++){
-			buffer[i]=(image[readyFrame][i]+buffer[i])/2;
+			buffer[i]+=image[readyFrame][i];
 		}
 		avgCounter++;
 	}
 	else{
 		for(uint16_t i=0;i<484;i++){
-			buffer[i]=(image[readyFrame][i]+buffer[i])/2;
+			buffer[i]+=image[readyFrame][i];
+			buffer[i]>>=3;
 		}
 //		HAL_DMA_Start(&hdma_memtomem_dma1_channel3,(uint32_t)buffer,(uint32_t)I2C_IF_TxBuffer,968/4);
 		for(uint16_t i=0;i<484;i++){
-			image_FIFO[i]=buffer[i];
+			image_FIFO[i]=(uint16_t)buffer[i];
 		}
 		avgCounter=0;
+	}
+	
+	for(uint16_t i=0;i<22;i++){
+		std[i]=image[readyFrame][i*23];
 	}
 
   /* USER CODE END DMA1_Channel1_IRQn 0 */
@@ -217,6 +225,20 @@ void DMA1_Channel2_3_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel2_3_IRQn 1 */
 
   /* USER CODE END DMA1_Channel2_3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+
+  /* USER CODE END TIM3_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim3);
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+
+  /* USER CODE END TIM3_IRQn 1 */
 }
 
 /**

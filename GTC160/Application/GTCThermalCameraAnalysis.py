@@ -1,13 +1,13 @@
-  ''' GTC Thermal Camera Analysis 
-    Version
-      1.0
-    Date
-      14 Aug, 2020
-    Author
-      Riviere
-    Descript
-      This App is designed to camera hardware tuning
-  '''
+''' GTC Thermal Camera Analysis 
+  Version
+    1.0
+  Date
+    14 Aug, 2020
+  Author
+    Riviere
+  Descript
+    This App is designed to camera hardware tuning
+'''
 
 import PySimpleGUI as sg
 import numpy as np

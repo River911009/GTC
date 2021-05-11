@@ -1,11 +1,11 @@
-  ''' getImgArray
+''' getImgArray
 
-    GTC160 -> *.csv, *.bmp and *.c
-    data array are uint8 grey of UVC
+  GTC160 -> *.csv, *.bmp and *.c
+  data array are uint8 grey of UVC
 
-    by Riviere @ 9 Dec, 2020
+  by Riviere @ 9 Dec, 2020
 
-  '''
+'''
 
 import cv2
 import numpy as np

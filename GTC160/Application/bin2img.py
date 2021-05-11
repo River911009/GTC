@@ -1,10 +1,10 @@
-  ''' bin2img
+''' bin2img
 
-    binary -> display on GUI
+  binary -> display on GUI
 
-    by Riviere @ 16 April, 2021
+  by Riviere @ 16 April, 2021
 
-  '''
+'''
 
 import os
 import cv2 as cv
@@ -85,13 +85,6 @@ def screenRefresh(
     data=cv.imencode(ext='.png',img=frame)[1].tobytes()
   )
 
-########################################
-# Init
-########################################
-pset_list=[a for a in os.listdir('./')]
-window.FindElement('__LIST__').Update(pset_list)
-window.FindElement('__PATH__').Update(os.getcwd())
-
 def decode(f):
   img=np.zeros(shape=(width*height),dtype=np.uint8)
   if f:
@@ -102,8 +95,17 @@ def decode(f):
         img[i]=int.from_bytes(tmp,byteorder="big",signed=False)
         tmp=array.read(1)
         i+=1
+      
       array.close()
   return(np.reshape(a=img,newshape=(width,height)))
+
+########################################
+# Init
+########################################
+pset_list=[a for a in os.listdir('./')]
+window.FindElement('__LIST__').Update(pset_list)
+window.FindElement('__PATH__').Update(os.getcwd())
+
 
 ########################################
 # Main loop
@@ -116,9 +118,12 @@ while True:
     break
 
   if os.getcwd()!=values['__PATH__']:
-    os.chdir(values['__PATH__'])
-    pset_list=[a for a in os.listdir('./')]
-    window.FindElement('__LIST__').Update(pset_list)
+    try:
+      os.chdir(values['__PATH__'])
+      pset_list=[a for a in os.listdir('./')]
+      window.FindElement('__LIST__').Update(pset_list)
+    except:
+      pass
 
   if event=='__HELP__':
     sg.popup("Lorem Ipsum is simply dummy text of the printing and\ntypesetting industry. Lorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown\nprinter took a galley of type and scrambled it to make a\ntype specimen book. It has survived not only five centuries,\nbut also the leap into electronic typesetting, remaining\nessentially unchanged. It was popularised in the 1960s\nwith the release of Letraset sheets containing Lorem\nIpsum passages, and more recently with desktop publishing\nsoftware like Aldus PageMaker including versions of Lorem Ipsum.\n\nI think you should more understood with those tutorial, if not... go ask Riviere again with some drink and snack!!!",title='Help centre',)
@@ -126,7 +131,7 @@ while True:
   if event=='__CVT__':
     width=int(values['__WIDTH__'])
     height=int(values['__HEIGHT__'])
-    screenRefresh('__IMAGE__','',cv.resize(src=decode(values['__LIST__']),dsize=(2*width,2*height),interpolation=cv.INTER_LINEAR))
+    screenRefresh('__IMAGE__','',cv.resize(src=decode(values['__LIST__']),dsize=(2*height,2*width),interpolation=cv.INTER_LINEAR))
 
 ########################################
 # Memery recycle

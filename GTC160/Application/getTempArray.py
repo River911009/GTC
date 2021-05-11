@@ -1,11 +1,11 @@
-  ''' getTempArray
+''' getTempArray
 
-    GTC160 -> data.csv
-    data array are float temperature
+  GTC160 -> data.csv
+  data array are float temperature
 
-    by Riviere @ 21 Jan, 2021
+  by Riviere @ 21 Jan, 2021
 
-  '''
+'''
 
 import cv2
 import numpy
