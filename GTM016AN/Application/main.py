@@ -401,7 +401,7 @@ while True:
   # refresh port list
   if not portOpened:
     portList=sp.list_ports()
-    window.Element('__PORT__').update(values=portList)
+    window.Element('__PORT__').update(portList)
 
   # serial click events
   if event=='__CONNECT__':
@@ -525,8 +525,8 @@ while True:
       portOpened=False
       portDisconnect()
     else:
-      window.find('_DATA_').update(str(tmp))
-      window.find('_DATA2_').update(str(hex(tmp)))
+      window['_DATA_'].update(str(tmp))
+      window['_DATA2_'].update(str(hex(tmp)))
 
 
   if event=='W' and portOpened:

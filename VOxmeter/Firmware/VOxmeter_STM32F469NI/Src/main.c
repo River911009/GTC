@@ -127,14 +127,16 @@ void getADCArray(uint16_t length,uint8_t avg_range){
   // calculate average1 from 660 to 710
   average1=tmp[660];
   for(uint8_t k=1;k<avg_range;k++){
-    average1=(average1+tmp[660+k])/2;
+    average1=(average1+tmp[660+k]);
   }
+  average1/=avg_range;
 
   // calculate average2 from 1250 to 1300
   average2=tmp[1200];
   for(uint8_t k=1;k<avg_range;k++){
-    average2=(average2+tmp[1200+k])/2;
+    average2=(average2+tmp[1200+k]);
   }
+  average2/=avg_range;
 }
 
 void calibration(uint32_t R){

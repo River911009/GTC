@@ -1,12 +1,3 @@
-''' FocusDetecter
-
-  GTC160 -> display on GUI
-  get a number of focus status
-
-  by Riviere @ 8 Jan, 2021
-
-'''
-
 import cv2
 import numpy as np
 import PySimpleGUI as sg
@@ -18,7 +9,7 @@ maxi=0
 
 def checkRange(data):
   if int(data['__X1__'])>int(data['__X2__']):
-    window.find('__X1__').update(int(data['__X2__'])-1)
+    window['__X1__'].update(int(data['__X2__'])-1)
 
 def get_focus(x):
   print('test')
@@ -99,15 +90,6 @@ while True:
   RawFrame=np.reshape(a=frame,newshape=(180,160))
   RawFrame=RawFrame[:120][:]
 
-  face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-  faces = face_cascade.detectMultiScale(RawFrame, 1.1, 4)
-  for (x, y, w, h) in faces:
-    cv2.rectangle(RawFrame, (x, y), (x+w, y+h), (255, 0, 0), 1)
-    window.find('__X1__').update(x)
-    window.find('__Y1__').update(y)
-    window.find('__X2__').update(x+w)
-    window.find('__Y2__').update(y+h)
-
   OUT=RawFrame.copy()
 
   cv2.rectangle(
@@ -141,9 +123,9 @@ while True:
   # sqr_grad_x=gr
   
 
-  window.find('__AVG__').update('%.4f'%avg)
-  window.find('__STD__').update('%.4f'%std)
-  window.find('__GDE__').update(np.max(fm))
+  window['__AVG__'].update('%.4f'%avg)
+  window['__STD__'].update('%.4f'%std)
+  window['__GDE__'].update(np.max(fm))
 
   if event=='FOCUS':
     if maxi<np.max(fm):
@@ -151,7 +133,7 @@ while True:
     if maxi==np.max(fm):
       maxi=0
       print('GOT!!')
-    window.find('__MAX__').update(maxi)
+    window['__MAX__'].update(maxi)
 
 
   window['__IMAGE__'].update(

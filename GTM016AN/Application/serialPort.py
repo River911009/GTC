@@ -213,7 +213,7 @@ if __name__ == '__main__':
   # print(list_ports())
 
   # serial_open() test
-  port=serial_open('COM7')
+  port=serial_open('COM5')
   # print(port)
 
   # send_data() test: ack, TIMEOUT and DISCONNECT

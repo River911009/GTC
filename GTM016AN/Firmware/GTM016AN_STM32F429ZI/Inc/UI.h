@@ -89,6 +89,7 @@ typedef enum{
 void UI_Initial(uint32_t logoColour,uint32_t fontColour,uint32_t backColour);
 void setADC(ADC_SRC adc);
 void ScreenDrawLoop(frame_BufferTypeDef* src);
+void GTM016AN_setup(int fps);
 
 //uint16_t* uint16Array(uint8_t* Buff,uint16_t u16Length);
 //uint8_t*  uint8Array(uint16_t* Buff,uint16_t u16Length);

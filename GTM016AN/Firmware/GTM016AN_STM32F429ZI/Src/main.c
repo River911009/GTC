@@ -252,7 +252,9 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
-
+	HAL_Delay(500);
+	GTM016AN_setup(100);
+	
 	// stop external adc cnv clock and pclk
 	HAL_NVIC_DisableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
 	HAL_NVIC_DisableIRQ(GTM016AN_PCLK_EXTI_IRQn);

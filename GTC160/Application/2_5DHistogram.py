@@ -95,7 +95,7 @@ def main():
     )
     fig_agg.draw()
 
-    window.find('_IMAGE_').update(
+    window['_IMAGE_'].update(
       data=cv2.imencode(
         ext='.png',
         img=cv2.resize(

@@ -230,6 +230,78 @@ void ScreenDrawLoop(frame_BufferTypeDef* src){
 	}
 }
 
+void GTM016AN_setup(int fps){
+	uint8_t commands[2]={0};
+	switch(fps){
+		case 100:
+			commands[0]=0x9;commands[1]=0x5a;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0xe;commands[1]=0x3e;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x12;commands[1]=0xea;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x13;commands[1]=0x0;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x14;commands[1]=0x2;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x15;commands[1]=0xd;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x19;commands[1]=0x4;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x26;commands[1]=0x8;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x27;commands[1]=0x1f;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x3c;commands[1]=0x8f;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x3d;commands[1]=0x92;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x3e;commands[1]=0xf;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x3f;commands[1]=0xf;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x40;commands[1]=0x5;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x42;commands[1]=0xc;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x44;commands[1]=0x1;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x47;commands[1]=0x7c;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x48;commands[1]=0x6;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x4a;commands[1]=0xd;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x4b;commands[1]=0xd;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x4c;commands[1]=0xe;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x4d;commands[1]=0xe;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x50;commands[1]=0x2;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x52;commands[1]=0x80;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x53;commands[1]=0x7c;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x54;commands[1]=0xd;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x55;commands[1]=0xd;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x5a;commands[1]=0x44;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x5d;commands[1]=0xa7;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x60;commands[1]=0xb7;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			commands[0]=0x9;commands[1]=0x0;
+			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
+			break;
+		default:
+			break;
+	}
+}
+
 
 //// uint8Array to uint16Array
 //uint16_t* uint16Array(uint8_t* Buff,uint16_t u16Length){
