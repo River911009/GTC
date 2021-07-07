@@ -148,20 +148,23 @@ def refreshDataList(database):
 def start_testing(samples=100):
   tmp={'current':0,'PCLK':0,'dark_std':0,'reference_std':0,'active_std':0}
 
-  meter=sp.serial_open(port=values['__METER__'])
-  # measure chip current and convert to mA
-  sp.send_data(meter,bytes("MEASure:CURRent:DC? \r\n",'ascii'))
-  result=meter.readline()
-  tmp['current']=(format(1000*float(result.decode('utf-8')),'f'))
+  # meter=sp.serial_open(port=values['__METER__'])
+  # # measure chip current and convert to mA
+  # sleep(0.05)
+  # sp.send_data(meter,bytes("MEASure:CURRent:DC? \r\n",'ascii'))
+  # sleep(0.05)
+  # result=meter.readline()
+  # tmp['current']=(format(1000*float(result.decode('utf-8')),'f'))
 
-  window['__PBAR__'].UpdateBar(0.1)
+  # window['__PBAR__'].UpdateBar(0.1)
 
-  # measure PCLK frequency and convert to kHz
-  sp.send_data(meter,bytes("MEASure:FREQuency?\r\n",'ascii'))
-  result=meter.readline()
-  tmp['PCLK']=(format(0.031*float(result.decode('utf-8')),'f'))
-  sp.send_data(meter,bytes("MEASure:FREQuency?\r\n",'ascii'))
-  meter.close()
+  # # measure PCLK frequency and convert to kHz
+  # sleep(0.05)
+  # sp.send_data(meter,bytes("MEASure:FREQuency?\r\n",'ascii'))
+  # sleep(0.05)
+  # result=meter.readline()
+  # tmp['PCLK']=(format(0.031*float(result.decode('utf-8')),'f'))
+  # meter.close()
 
   window['__PBAR__'].UpdateBar(0.2)
 
@@ -193,11 +196,11 @@ def start_testing(samples=100):
   return(tmp)
 
 def result_check(result):
-  limit={ 'currentLT':  10,'currentGT': 100,
-          'PCLKLT':     10,'PCLKGT':    300,
-          'dark_stdLT': 10,'dark_stdGT':30,
-          'ref_stdLT':  10,'ref_stdGT': 30,
-          'act_stdLT':  10,'act_stdGT': 20}
+  limit={ 'currentLT':  0,'currentGT': 50,
+          'PCLKLT':     10,'PCLKGT':    100,
+          'dark_stdLT': 0,'dark_stdGT':30,
+          'ref_stdLT':  0,'ref_stdGT': 30,
+          'act_stdLT':  0,'act_stdGT': 20}
   status='PASS'
   tmp={}
 
@@ -231,6 +234,214 @@ def result_check(result):
 
   return(status,tmp)
 
+def init_GTM016AN():
+  gtm016an=sp.serial_open(port=values['__SENSOR__'])
+  tmp=sp.send_data(gtm016an,[33,9,90])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,14,48])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,18,234])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,19,0])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,20,2])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,21,13])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,25,4])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,38,3])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,39,31])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,60,143])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,61,146])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,62,15])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,63,15])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,64,5])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,66,12])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,68,1])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,71,124])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,72,6])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,74,13])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,75,13])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,76,14])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,77,14])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,80,2])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,82,128])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,83,124])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,84,13])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,85,13])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,90,68])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,93,137])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,93,167])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,96,179])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,38,8])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,14,62])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  tmp=sp.send_data(gtm016an,[33,9,0])
+  if type(tmp)!=int:
+    gtm016an.close()
+    sg.popup('I2C NACK')
+    return('break')
+
+  gtm016an.close()
+
 ########################################
 # Init
 ########################################
@@ -262,7 +473,7 @@ while True:
     window['__PATH__'].update(path)
     refreshPathList(path)
   if event=='__RUN__':
-    if values['__SENSOR__'] and values['__METER__'] and values['__SENSOR__']!=values['__METER__']:
+    if values['__SENSOR__']:# and values['__METER__'] and values['__SENSOR__']!=values['__METER__']:
       run_status=True
       window['__PATH__'].update(disabled=True,text_color='grey')
       window['__LIST__'].update(disabled=True)
@@ -362,47 +573,51 @@ while True:
         p['desc']=values['__CPDE__']
         # double check before start testing
         if 'OK'==sg.popup_ok_cancel('Check again Chip ID on socket!',title='Warning'):
-          tmp=start_testing()
-          # sg.PopupQuick('Test complete!')
-          # update result if test complete
-          p['current']=tmp['current']
-          p['PCLK']=tmp['PCLK']
-          p['dark_std']=tmp['dark_std']
-          p['reference_std']=tmp['reference_std']
-          p['active_std']=tmp['active_std']
+          if init_GTM016AN()!='break':
 
-          window['__CRNT__'].update(tmp['current'])
-          window['__PCLK__'].update(tmp['PCLK'])
-          window['__DSTD__'].update(tmp['dark_std'])
-          window['__RSTD__'].update(tmp['reference_std'])
-          window['__ASTD__'].update(tmp['active_std'])
+            sleep(2)
+            
+            tmp=start_testing()
+            # sg.PopupQuick('Test complete!')
+            # update result if test complete
+            p['current']=tmp['current']
+            p['PCLK']=tmp['PCLK']
+            p['dark_std']=tmp['dark_std']
+            p['reference_std']=tmp['reference_std']
+            p['active_std']=tmp['active_std']
 
-          status,res=result_check(tmp)
+            window['__CRNT__'].update(tmp['current'])
+            window['__PCLK__'].update(tmp['PCLK'])
+            window['__DSTD__'].update(tmp['dark_std'])
+            window['__RSTD__'].update(tmp['reference_std'])
+            window['__ASTD__'].update(tmp['active_std'])
 
-          window['__CRNTFAIL__'].update('')
-          window['__PCLKFAIL__'].update('')
-          window['__DSTDFAIL__'].update('')
-          window['__RSTDFAIL__'].update('')
-          window['__ASTDFAIL__'].update('')
+            status,res=result_check(tmp)
 
-          window['__RESU__'].update(status)
-          if status=='PASS':
-            p['result']='PASS'
-            window['__RESU__'].update(button_color=('black','#00ff00'))
-          else:
-            p['result']='FAIL'
-            window['__RESU__'].update(button_color=('black','#ff0000'))
-            for f in res:
-              window[f].update(res[f])
+            window['__CRNTFAIL__'].update('')
+            window['__PCLKFAIL__'].update('')
+            window['__DSTDFAIL__'].update('')
+            window['__RSTDFAIL__'].update('')
+            window['__ASTDFAIL__'].update('')
 
-          if 'Yes'==sg.popup_yes_no('Test completed, like to add and test next chip?',title='Next step'):
-            index=0
-            for p in data['database']:
-              if index<int(p['id']):
-                index=int(p['id'])
-            window['__CPID__'].update(str(index+1))
-            auto_add_cpid=True
-            auto_selected=str(index+1)
+            window['__RESU__'].update(status)
+            if status=='PASS':
+              p['result']='PASS'
+              window['__RESU__'].update(button_color=('black','#00ff00'))
+            else:
+              p['result']='FAIL'
+              window['__RESU__'].update(button_color=('black','#ff0000'))
+              for f in res:
+                window[f].update(res[f])
+
+            if 'Yes'==sg.popup_yes_no('Test completed, like to add and test next chip?',title='Next step'):
+              index=0
+              for p in data['database']:
+                if index<int(p['id']):
+                  index=int(p['id'])
+              window['__CPID__'].update(str(index+1))
+              auto_add_cpid=True
+              auto_selected=str(index+1)
 
 ########################################
 # Memery recycle

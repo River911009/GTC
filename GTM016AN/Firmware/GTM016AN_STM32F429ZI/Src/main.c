@@ -252,8 +252,8 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
-	HAL_Delay(500);
-	GTM016AN_setup(100);
+//	HAL_Delay(500);
+//	GTM016AN_setup(100);
 	
 	// stop external adc cnv clock and pclk
 	HAL_NVIC_DisableIRQ(GTM016AN_VSYNC_EXTI_IRQn);
@@ -402,7 +402,8 @@ int main(void)
 //    }
 
     if(imgRead==2){
-      CDC_Transmit_HS((uint8_t*)img.calibration,36);
+//      CDC_Transmit_HS((uint8_t*)img.calibration,36);
+      CDC_Transmit_HS((uint8_t*)imageValue,44);
       imgRead=0;
     }
 

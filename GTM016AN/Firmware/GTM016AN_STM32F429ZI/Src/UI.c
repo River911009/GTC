@@ -236,7 +236,7 @@ void GTM016AN_setup(int fps){
 		case 100:
 			commands[0]=0x9;commands[1]=0x5a;
 			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
-			commands[0]=0xe;commands[1]=0x3e;
+			commands[0]=0xe;commands[1]=0x30;
 			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
 			commands[0]=0x12;commands[1]=0xea;
 			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
@@ -248,7 +248,7 @@ void GTM016AN_setup(int fps){
 			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
 			commands[0]=0x19;commands[1]=0x4;
 			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
-			commands[0]=0x26;commands[1]=0x8;
+			commands[0]=0x26;commands[1]=0x3;
 			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);
 			commands[0]=0x27;commands[1]=0x1f;
 			HAL_I2C_Master_Transmit(&hi2c3,0x40,commands,2,10);

@@ -1,15 +1,8 @@
-''' bin2img
-
-  binary -> display on GUI
-
-  by Riviere @ 16 April, 2021
-
-'''
-
 import os
 import cv2 as cv
 import numpy as np
 import PySimpleGUI as sg
+import crcmod
 
 ########################################
 # Var
@@ -23,10 +16,10 @@ layout=[
         sg.Text(text='Path:'),
         sg.Input(size=(24,1),key='__PATH__')],
       [
-        sg.Text(text='W:'),
-        sg.Input(default_text='160',size=(10,1),key='__WIDTH__'),
         sg.Text(text='H:'),
-        sg.Input(default_text='120',size=(10,1),key='__HEIGHT__')
+        sg.Input(default_text='120',size=(10,1),key='__WIDTH__'),
+        sg.Text(text='W:'),
+        sg.Input(default_text='160',size=(10,1),key='__HEIGHT__')
       ],
       [sg.Listbox([],size=(30,10),key='__LIST__')],
       [
@@ -85,27 +78,39 @@ def screenRefresh(
     data=cv.imencode(ext='.png',img=frame)[1].tobytes()
   )
 
+########################################
+# Init
+########################################
+# os.chdir("/home/gtcsa/Desktop/frame")
+_CRC_FUNC=crcmod.mkCrcFun(0x18005,initCrc=0xffff,xorOut=0)
+
+pset_list=[a for a in os.listdir('./')]
+window.FindElement('__LIST__').Update(pset_list)
+window.FindElement('__PATH__').Update(os.getcwd())
+
 def decode(f):
   img=np.zeros(shape=(width*height),dtype=np.uint8)
+  dat=np.zeros(shape=(19208),dtype=np.uint8)
   if f:
     with open(f[0],"rb") as array:
       i=0
       tmp=array.read(1)
       while tmp and i<width*height:
         img[i]=int.from_bytes(tmp,byteorder="big",signed=False)
+        dat[i]=img[i]
         tmp=array.read(1)
         i+=1
-      
+      while tmp:
+        dat[i]=int.from_bytes(tmp,byteorder="big",signed=False)
+        tmp=array.read(1)
+        i+=1
       array.close()
-  return(np.reshape(a=img,newshape=(width,height)))
 
-########################################
-# Init
-########################################
-pset_list=[a for a in os.listdir('./')]
-window.FindElement('__LIST__').Update(pset_list)
-window.FindElement('__PATH__').Update(os.getcwd())
-
+  print(dat[19206:],dat[:19206])
+  crc=_CRC_FUNC(dat[:19206])
+  print(crc,crc//256,crc%256)
+  sg.popup("Last 2 bytes are: [%d %d]\nCRC-IBM are     : [%d %d]"%(dat[19206],dat[19207],crc//256,crc%256),title="Warning!")
+  return(np.reshape(a=img,newshape=(width,height)) )
 
 ########################################
 # Main loop

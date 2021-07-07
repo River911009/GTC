@@ -43,14 +43,20 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 
-extern uint8_t  readyFrame;
+
 extern uint16_t image[2][484];
+// raw frame indicator
+uint8_t  readyFrame=1;
+// avgCounter counts how many frames currently to calculate average
+uint8_t  avgCounter;
+// buffer storages all frames, than calculate average
+uint32_t buffer[484];
+// when average frame is ready, it will be push into image_FIFO
+uint16_t image_FIFO[484];
 
-extern uint8_t  avgCounter;
-extern uint32_t buffer[484];
-extern uint16_t image_FIFO[484];
+// storage 22 pixels for ST studio using
+uint16_t std[22];
 
-extern uint16_t std[22];
 
 /* USER CODE END PV */
 
@@ -65,6 +71,7 @@ extern uint16_t std[22];
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_memtomem_dma1_channel3;
 extern DMA_HandleTypeDef hdma_i2c2_tx;
 extern I2C_HandleTypeDef hi2c2;
@@ -177,6 +184,7 @@ void DMA1_Channel1_IRQHandler(void)
 
 	readyFrame=(readyFrame)? 0:1;
 
+	// calculate average by 8 frame
 	if(avgCounter==0){
 		for(uint16_t i=0;i<484;i++){
 			buffer[i]=image[readyFrame][i];
@@ -194,13 +202,14 @@ void DMA1_Channel1_IRQHandler(void)
 			buffer[i]+=image[readyFrame][i];
 			buffer[i]>>=3;
 		}
-//		HAL_DMA_Start(&hdma_memtomem_dma1_channel3,(uint32_t)buffer,(uint32_t)I2C_IF_TxBuffer,968/4);
+		// HAL_DMA_Start(&hdma_memtomem_dma1_channel3,(uint32_t)buffer,(uint32_t)I2C_IF_TxBuffer,968/4);
 		for(uint16_t i=0;i<484;i++){
 			image_FIFO[i]=(uint16_t)buffer[i];
 		}
 		avgCounter=0;
 	}
-	
+
+	//get 22 pixels for ST studio using, transfer via st-link
 	for(uint16_t i=0;i<22;i++){
 		std[i]=image[readyFrame][i*23];
 	}
@@ -225,6 +234,20 @@ void DMA1_Channel2_3_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel2_3_IRQn 1 */
 
   /* USER CODE END DMA1_Channel2_3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel 4, channel 5, channel 6, channel 7 and DMAMUX1 interrupts.
+  */
+void DMA1_Ch4_7_DMAMUX1_OVR_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Ch4_7_DMAMUX1_OVR_IRQn 0 */
+
+  /* USER CODE END DMA1_Ch4_7_DMAMUX1_OVR_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Ch4_7_DMAMUX1_OVR_IRQn 1 */
+
+  /* USER CODE END DMA1_Ch4_7_DMAMUX1_OVR_IRQn 1 */
 }
 
 /**

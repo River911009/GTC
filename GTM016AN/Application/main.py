@@ -44,7 +44,13 @@ frame_size=[22,22]
 frame_addr=[0,0,21,21]
 decode='Dec'
 grid=False
-defaultport=portList[0]
+
+print(portList)
+
+try:
+  defaultport=portList[0]
+except:
+  defaultport=''
 addr_buffer=''
 pset_list=[]
 
